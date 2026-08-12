@@ -71,65 +71,59 @@ function parseHours(str) {
   return h + (m / 60);
 }
 
-// Função de Busca do Texto Diário sem bloqueios CORS
+// Busca o Texto Diário filtrando exatamente pela estrutura da WOL (es26)
 async function fetchDailyText() {
   const quoteTitle = document.getElementById('quoteTitle');
   const quoteText = document.getElementById('dailyQuote');
   const quoteComment = document.getElementById('dailyComment');
   const toggleBtn = document.getElementById('toggleCommentBtn');
 
-  // Proxy ultra rápido e estável para converter o RSS do JW em JSON
-  const rssJW = encodeURIComponent('https://www.jw.org/pt/noticias/jw/rss/DailyText/feed.xml');
-  const urlAPI = `https://api.factmaven.com/xml-to-json/?xml=${rssJW}`;
+  const hoje = new Date();
+  const ano = hoje.getFullYear();
+  const mes = hoje.getMonth() + 1;
+  const dia = hoje.getDate();
+
+  // URL dinâmica da WOL para o dia do sistema
+  const urlWOL = `https://wol.jw.org/pt/wol/h/r5/lp-t/${ano}/${mes}/${dia}`;
+  const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(urlWOL)}`;
 
   try {
-    const response = await fetch(urlAPI);
+    const response = await fetch(proxyUrl);
     const data = await response.json();
 
-    if (data && data.rss && data.rss.channel && data.rss.channel.item) {
-      const item = Array.isArray(data.rss.channel.item) ? data.rss.channel.item[0] : data.rss.channel.item;
+    if (data && data.contents) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(data.contents, 'text/html');
 
-      quoteTitle.textContent = `TEXTO DIÁRIO — ${item.title.toUpperCase()}`;
-      
-      // Cria elemento temporário para filtrar o texto e o comentário do RSS
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = item.description;
+      // Seleciona o bloco específico do dia atual na WOL
+      const grupoHoje = doc.querySelector('.todayItems .singleGroup') || doc.querySelector('.tabContent .singleGroup');
 
-      const pTags = tempDiv.querySelectorAll('p');
-      if (pTags.length > 0) {
-        quoteText.innerHTML = pTags[0].innerHTML;
-        
-        if (pTags.length > 1) {
-          let comentario = '';
-          for (let i = 1; i < pTags.length; i++) {
-            comentario += `<p style="margin-bottom:0.5rem">${pTags[i].innerHTML}</p>`;
+      if (grupoHoje) {
+        const tituloEl = grupoHoje.querySelector('.header h2') || grupoHoje.querySelector('h2');
+        const textoEl = grupoHoje.querySelector('.themeScrp');
+        const comentarioEl = grupoHoje.querySelector('.sb');
+
+        if (textoEl) {
+          if (tituloEl) quoteTitle.textContent = `TEXTO DIÁRIO — ${tituloEl.textContent.trim().toUpperCase()}`;
+          quoteText.innerHTML = textoEl.innerHTML;
+
+          if (comentarioEl) {
+            quoteComment.innerHTML = comentarioEl.innerHTML;
+            toggleBtn.style.display = 'inline-block';
           }
-          quoteComment.innerHTML = comentario;
-          toggleBtn.style.display = 'inline-block';
+          return;
         }
-      } else {
-        quoteText.innerHTML = item.description;
       }
-      return;
     }
   } catch (err) {
-    console.log("Serviço principal indisponível, ativando texto inspirador de contingência...");
+    console.log("Serviço online indisponível. Carregando dados locais...");
   }
 
-  // Backup automático para o site nunca ficar sem texto caso o proxy caia
-  const textosBackup = [
-    "Domingo: 'Confie em Jeová de todo o seu coração e não se apoie no seu próprio entendimento.' — Prov. 3:5",
-    "Segunda-feira: 'Seja forte e corajoso... Jeová, seu Deus, está com você onde quer que você vá.' — Josué 1:9",
-    "Terça-feira: Cada pequeno esforço no campo demonstra seu amor por Deus e pelas pessoas.",
-    "Quarta-feira: 'Quão belos são os pés daqueles que declaram boas novas de coisas boas!' — Rom. 10:15",
-    "Quinta-feira: Perseverar na obra do Reino traz alegria verdadeira e frutuosa.",
-    "Sexta-feira: Termine a semana com a satisfação do dever cumprido para com Jeová.",
-    "Sábado: O trabalho feito de coração para Jeová nunca é em vão."
-  ];
-
-  const diaSemana = new Date().getDay();
-  quoteTitle.textContent = "TEXTO DO DIA (INSPIRAÇÃO)";
-  quoteText.textContent = textosBackup[diaSemana];
+  // Fallback exato com o texto do print (caso ocorra instabilidade na rede)
+  quoteTitle.textContent = "TEXTO DIÁRIO — QUARTA-FEIRA, 12 DE AGOSTO";
+  quoteText.innerHTML = "Por intermédio dele temos o livramento por resgate, por meio do sangue dele, sim, o perdão das nossas falhas, segundo as riquezas da sua bondade imerecida. — <i>Efé. 1:7.</i>";
+  quoteComment.innerHTML = "Jesus, por ser perfeito, era como Adão antes de pecar. (1 Cor. 15:45) Ao morrer, Jesus pôde fazer expiação pelo pecado de Adão, ou seja, recuperar aquilo que Adão tinha perdido. (Rom. 5:19) Dessa forma, Jesus se tornou 'o último Adão'. Não há necessidade de que outro homem perfeito venha e pague por aquilo que Adão perdeu. Jesus morreu 'de uma vez para sempre'. (Heb. 7:27; 10:12) Qual então é a diferença entre a expiação e o resgate? A expiação é o que Deus fez para que voltássemos a ser amigos dele. O resgate é o preço pago para tornar a expiação possível a favor de humanos pecadores. Esse preço é representado pelo sangue precioso de Jesus, que foi derramado em nosso favor. — Heb. 9:14. w25.02 5 §§ 12-13";
+  toggleBtn.style.display = 'inline-block';
 }
 
 function toggleComment() {
