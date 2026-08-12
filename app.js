@@ -1,4 +1,38 @@
-// 1. 20 Temas de Cores
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { 
+  getAuth, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  sendEmailVerification, 
+  onAuthStateChanged, 
+  signOut 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { 
+  getFirestore, 
+  doc, 
+  setDoc, 
+  getDoc 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+// SUAS CHAVES DO SEU PROJETO FIREBASE (teste-7bf43)
+const firebaseConfig = {
+  apiKey: "AIzaSyCGxsOtrqrASUIS8s6nemWkrybhwfGa5KI",
+  authDomain: "teste-7bf43.firebaseapp.com",
+  projectId: "teste-7bf43",
+  storageBucket: "teste-7bf43.firebasestorage.app",
+  messagingSenderId: "957351069657",
+  appId: "1:957351069657:web:64de183693eefbf3a4bbc8",
+  measurementId: "G-NZFN98EEB6"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser = null;
+let isSignUpMode = false;
+
+// 20 Temas de Cores
 const colorThemes = [
   { name: "Azul Marinho Clássico", bg: "#EEEBDA", navy: "#282B4A", dark: "#121426" },
   { name: "Verde Botânico", bg: "#E8F0E6", navy: "#2D5A27", dark: "#132810" },
@@ -22,9 +56,7 @@ const colorThemes = [
   { name: "Açafrão Pôr do Sol", bg: "#FAF0E6", navy: "#6B431D", dark: "#301A08" }
 ];
 
-let currentThemeIndex = 0;
-
-// 2. Dados do Planejamento Mensal
+// Dados dos Meses
 const planData = [
   {
     id: "ago-2026", label: "Agosto 2026", title: "AGOSTO 2026", target: "50h",
@@ -332,7 +364,78 @@ function parseHours(str) {
   return h + (m / 60);
 }
 
-// 3. Leitura do Texto Diário da WOL (Examine as Escrituras Diariamente)
+function validarSenhaForte(senha) {
+  if (senha.length < 8) return "A senha deve ter pelo menos 8 caracteres.";
+  if (!/[A-Z]/.test(senha)) return "A senha deve ter pelo menos uma letra maiúscula.";
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(senha)) return "A senha deve conter pelo menos um caractere especial (!@#$%...).";
+  return null;
+}
+
+// Configuração dos Eventos da Tela de Autenticação
+document.getElementById('authToggleLink').onclick = function() {
+  isSignUpMode = !isSignUpMode;
+  document.getElementById('authTitle').textContent = isSignUpMode ? "Criar Nova Conta" : "Entrar no Sistema";
+  document.getElementById('authSubmitBtn').textContent = isSignUpMode ? "Cadastrar" : "Entrar";
+  document.getElementById('authToggleLink').textContent = isSignUpMode ? "Já tem conta? Faça login aqui" : "Não tem conta? Cadastre-se aqui";
+  document.getElementById('passwordHint').style.display = isSignUpMode ? 'block' : 'none';
+};
+
+document.getElementById('authSubmitBtn').onclick = async function() {
+  const email = document.getElementById('authEmail').value;
+  const password = document.getElementById('authPassword').value;
+
+  if (!email || !password) {
+    alert("Preencha todos os campos!");
+    return;
+  }
+
+  if (isSignUpMode) {
+    const erroSenha = validarSenhaForte(password);
+    if (erroSenha) {
+      alert(erroSenha);
+      return;
+    }
+
+    try {
+      const userCred = await createUserWithEmailAndPassword(auth, email, password);
+      await sendEmailVerification(userCred.user);
+      alert("Conta criada com sucesso! Enviamos um e-mail de confirmação. Verifique sua caixa de entrada antes de entrar.");
+      document.getElementById('authToggleLink').click();
+    } catch (err) {
+      alert("Erro ao cadastrar: " + err.message);
+    }
+  } else {
+    try {
+      const userCred = await signInWithEmailAndPassword(auth, email, password);
+      if (!userCred.user.emailVerified) {
+        alert("Sua conta ainda não foi confirmada. Verifique o link enviado para seu e-mail.");
+        await signOut(auth);
+        return;
+      }
+    } catch (err) {
+      alert("Erro ao entrar: " + err.message);
+    }
+  }
+};
+
+document.getElementById('logoutBtn').onclick = function() {
+  signOut(auth).then(() => window.location.reload());
+};
+
+// Monitoramento de Login no Firebase
+onAuthStateChanged(auth, async (user) => {
+  if (user && user.emailVerified) {
+    currentUser = user;
+    document.getElementById('authOverlay').style.display = 'none';
+    document.getElementById('appContainer').classList.add('active');
+    initApp();
+  } else {
+    document.getElementById('authOverlay').style.display = 'flex';
+    document.getElementById('appContainer').classList.remove('active');
+  }
+});
+
+// Leitura do Texto Diário
 async function fetchDailyText() {
   const quoteTitle = document.getElementById('quoteTitle');
   const quoteText = document.getElementById('dailyQuote');
@@ -364,16 +467,16 @@ async function fetchDailyText() {
       return;
     }
   } catch (err) {
-    console.log("Serviço online indisponível. Usando backup local...");
+    console.log("Usando backup local para o texto...");
   }
 
   quoteTitle.textContent = "TEXTO DIÁRIO — QUARTA-FEIRA, 12 DE AGOSTO";
   quoteText.innerHTML = "Por intermédio dele temos o livramento por resgate, por meio do sangue dele, sim, o perdão das nossas falhas, segundo as riquezas da sua bondade imerecida. — <i>Efé. 1:7.</i>";
-  quoteComment.innerHTML = "Jesus, por ser perfeito, era como Adão antes de pecar. (1 Cor. 15:45) Ao morrer, Jesus pôde fazer expiação pelo pecado de Adão, ou seja, recuperar aquilo que Adão tinha perdido. (Rom. 5:19) Dessa forma, Jesus se tornou 'o último Adão'. Não há necessidade de que outro homem perfeito venha e pague por aquilo que Adão perdeu. Jesus morreu 'de uma vez para sempre'. (Heb. 7:27; 10:12) Qual então é a diferença entre a expiação e o resgate? A expiação é o que Deus fez para que voltássemos a ser amigos dele. O resgate é o preço pago para tornar a expiação possível a favor de humanos pecadores. Esse preço é representado pelo sangue precioso de Jesus, que foi derramado em nosso favor. — Heb. 9:14. w25.02 5 §§ 12-13";
+  quoteComment.innerHTML = "Jesus, por ser perfeito, era como Adão antes de pecar. (1 Cor. 15:45) Ao morrer, Jesus pôde fazer expiação pelo pecado de Adão, ou seja, recuperar aquilo que Adão tinha perdido. (Rom. 5:19)... — Heb. 9:14. w25.02 5 §§ 12-13";
   toggleBtn.style.display = 'inline-block';
 }
 
-function toggleComment() {
+document.getElementById('toggleCommentBtn').onclick = function() {
   const comment = document.getElementById('dailyComment');
   const btn = document.getElementById('toggleCommentBtn');
   if (comment.style.display === 'block') {
@@ -383,16 +486,19 @@ function toggleComment() {
     comment.style.display = 'block';
     btn.textContent = 'Ocultar Comentário';
   }
-}
+};
 
-// 4. Alternador de Cores em Fila
-function nextTheme() {
-  currentThemeIndex = (currentThemeIndex + 1) % colorThemes.length;
-  setTheme(currentThemeIndex);
+function toggleThemeMenu() {
+  const grid = document.getElementById('colorGrid');
+  const sectionTitle = document.querySelector('.color-section-title');
+  if (grid) {
+    const isHidden = grid.style.display === 'none' || grid.style.display === '';
+    grid.style.display = isHidden ? 'grid' : 'none';
+    if (sectionTitle) sectionTitle.style.display = isHidden ? 'block' : 'none';
+  }
 }
 
 function setTheme(index, save = true) {
-  currentThemeIndex = index;
   const theme = colorThemes[index];
   if (!theme) return;
 
@@ -403,9 +509,7 @@ function setTheme(index, save = true) {
   document.documentElement.style.setProperty('--border-color', hexToRgba(theme.bg, 0.25));
 
   const themeBtn = document.getElementById('themeSwitchBtn');
-  if (themeBtn) {
-    themeBtn.textContent = `🎨 Tema: ${theme.name} (${index + 1}/20)`;
-  }
+  if (themeBtn) themeBtn.textContent = `🎨 Alterar Tema (${theme.name})`;
 
   document.querySelectorAll('.color-dot').forEach((dot, i) => {
     dot.classList.toggle('selected', i === index);
@@ -424,7 +528,6 @@ function hexToRgba(hex, alpha) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-// 5. Inicializador Principal
 function initApp() {
   const sidebarMenu = document.getElementById('sidebarMenu');
   const monthsMenu = document.getElementById('monthsMenu');
@@ -433,25 +536,31 @@ function initApp() {
 
   if (!monthsMenu || !colorGrid || !monthsContainer) return;
 
-  // Adiciona o Botão Estilo Switch no topo da barra lateral
+  colorGrid.style.display = 'none';
+  const sectionTitle = document.querySelector('.color-section-title');
+  if (sectionTitle) sectionTitle.style.display = 'none';
+
   if (sidebarMenu && !document.getElementById('themeSwitchBtn')) {
     const switchBtn = document.createElement('button');
     switchBtn.id = 'themeSwitchBtn';
     switchBtn.className = 'btn';
-    switchBtn.style.marginBottom = '1rem';
+    switchBtn.style.marginTop = '1rem';
+    switchBtn.style.marginBottom = '0.5rem';
     switchBtn.style.background = 'rgba(255,255,255,0.1)';
-    switchBtn.onclick = nextTheme;
-    sidebarMenu.insertBefore(switchBtn, sidebarMenu.firstChild);
+    switchBtn.onclick = toggleThemeMenu;
+    sidebarMenu.appendChild(switchBtn);
   }
 
-  // Gera os quadrados arredondados de seleção de cor
   colorGrid.innerHTML = '';
   colorThemes.forEach((theme, idx) => {
     const dot = document.createElement('div');
     dot.className = `color-dot ${idx === 0 ? 'selected' : ''}`;
     dot.style.background = `linear-gradient(135deg, ${theme.navy} 50%, ${theme.bg} 50%)`;
     dot.title = theme.name;
-    dot.onclick = () => setTheme(idx);
+    dot.onclick = () => {
+      setTheme(idx);
+      toggleThemeMenu();
+    };
     colorGrid.appendChild(dot);
   });
 
@@ -462,7 +571,6 @@ function initApp() {
     setTheme(0, false);
   }
 
-  // Gera o planejamento de todos os meses
   monthsMenu.innerHTML = '';
   monthsContainer.innerHTML = '';
   planData.forEach((month, index) => {
@@ -483,7 +591,7 @@ function initApp() {
 
     let rowsHtml = '';
     month.days.forEach((d, idx) => {
-      const storageKey = `${month.id}-${idx}`;
+      const storageKey = `${currentUser.uid}-${month.id}-${idx}`;
       const isChecked = localStorage.getItem(storageKey) === 'true';
 
       rowsHtml += `
@@ -505,54 +613,32 @@ function initApp() {
     });
 
     monthDiv.innerHTML = `
-      <div class="month-header">
-        <div class="month-title">
-          <h2>${month.title}</h2>
-        </div>
-      </div>
-
+      <div class="month-header"><div class="month-title"><h2>${month.title}</h2></div></div>
       <div class="progress-box">
         <div class="progress-info">
           <span>Progresso da Meta (${month.target})</span>
           <span id="prog-text-${month.id}">0h / ${month.target}</span>
         </div>
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" id="prog-bar-${month.id}"></div>
-        </div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-bar-${month.id}"></div></div>
       </div>
-
       <div class="table-container">
         <table>
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Dia</th>
-              <th>Meta</th>
-              <th style="text-align: center;">Feito ✓</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rowsHtml}
-          </tbody>
+          <thead><tr><th>Data</th><th>Dia</th><th>Meta</th><th style="text-align: center;">Feito ✓</th></tr></thead>
+          <tbody>${rowsHtml}</tbody>
         </table>
       </div>
-
       <p class="rule-note">${month.rule}</p>
-      
       <div class="report-box" id="report-box-${month.id}">
         <div class="report-title">Relatório do Mês</div>
         <div class="report-text" id="report-text-${month.id}"></div>
-        <button class="btn" id="copy-btn-${month.id}" onclick="copyReport('${month.id}')">
-          Copiar Mensagem
-        </button>
+        <button class="btn" id="copy-btn-${month.id}">Copiar Mensagem</button>
       </div>
-
       <div class="photo-section">
         <div class="photo-title">
           <span>Fotos do Mês</span>
           <label class="photo-upload-btn">
             + Adicionar Foto
-            <input type="file" accept="image/*" style="display:none;" onchange="uploadPhoto(event, '${month.id}')">
+            <input type="file" accept="image/*" style="display:none;" id="file-input-${month.id}">
           </label>
         </div>
         <div class="photo-grid" id="photo-grid-${month.id}"></div>
@@ -560,6 +646,19 @@ function initApp() {
     `;
 
     monthsContainer.appendChild(monthDiv);
+
+    // Eventos do botão de copiar e foto para cada mês
+    setTimeout(() => {
+      const copyBtn = document.getElementById(`copy-btn-${month.id}`);
+      if (copyBtn) {
+        copyBtn.onclick = () => copyReport(month.id);
+      }
+
+      const fileInput = document.getElementById(`file-input-${month.id}`);
+      if (fileInput) {
+        fileInput.onchange = (e) => uploadPhoto(e, month.id);
+      }
+    }, 100);
   });
 
   planData.forEach(m => {
@@ -570,10 +669,6 @@ function initApp() {
   fetchDailyText();
 }
 
-// 6. Controles do Menu Lateral
-const menuToggle = document.getElementById('menuToggle');
-const menuOverlay = document.getElementById('menuOverlay');
-
 function toggleMenu() {
   const sidebar = document.getElementById('sidebarMenu');
   const overlay = document.getElementById('menuOverlay');
@@ -581,8 +676,8 @@ function toggleMenu() {
   if (overlay) overlay.classList.toggle('active');
 }
 
-if(menuToggle) menuToggle.onclick = toggleMenu;
-if(menuOverlay) menuOverlay.onclick = toggleMenu;
+document.getElementById('menuToggle').onclick = toggleMenu;
+document.getElementById('menuOverlay').onclick = toggleMenu;
 
 function switchTab(monthId) {
   document.querySelectorAll('.menu-btn').forEach((btn, idx) => {
@@ -593,7 +688,6 @@ function switchTab(monthId) {
   });
 }
 
-// 7. Cálculo de Progresso e Geração de Relatório
 function updateProgress(monthId, monthTitle) {
   const checkboxes = document.querySelectorAll(`input[data-month="${monthId}"]`);
   let totalDone = 0;
@@ -609,13 +703,10 @@ function updateProgress(monthId, monthTitle) {
   const minutes = Math.round((totalDone - hours) * 60);
   const doneFormatted = minutes > 0 ? `${hours}h${minutes.toString().padStart(2, '0')}` : `${hours}h`;
 
-  const targetValue = 50;
-  const percentage = Math.min((totalDone / targetValue) * 100, 100);
-
   const progText = document.getElementById(`prog-text-${monthId}`);
   const progBar = document.getElementById(`prog-bar-${monthId}`);
   if (progText) progText.textContent = `${doneFormatted} / 50h`;
-  if (progBar) progBar.style.width = `${percentage}%`;
+  if (progBar) progBar.style.width = `${Math.min((totalDone / 50) * 100, 100)}%`;
 
   const reportBox = document.getElementById(`report-box-${monthId}`);
   const reportText = document.getElementById(`report-text-${monthId}`);
@@ -630,54 +721,18 @@ function updateProgress(monthId, monthTitle) {
   }
 }
 
-// 8. Botão de Copiar Compatível com Celulares e PC
 function copyReport(monthId) {
   const reportTextEl = document.getElementById(`report-text-${monthId}`);
   const btn = document.getElementById(`copy-btn-${monthId}`);
   if (!reportTextEl || !btn) return;
 
-  const text = reportTextEl.textContent;
-
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(text).then(() => {
-      showCopyFeedback(btn);
-    }).catch(() => {
-      fallbackCopy(text, btn);
-    });
-  } else {
-    fallbackCopy(text, btn);
-  }
+  navigator.clipboard.writeText(reportTextEl.textContent).then(() => {
+    const originalText = btn.textContent;
+    btn.textContent = '✓ Copiado com sucesso!';
+    setTimeout(() => btn.textContent = originalText, 2000);
+  });
 }
 
-function fallbackCopy(text, btn) {
-  const textarea = document.createElement('textarea');
-  textarea.value = text;
-  textarea.style.position = 'fixed';
-  textarea.style.opacity = '0';
-  document.body.appendChild(textarea);
-  textarea.focus();
-  textarea.select();
-
-  try {
-    document.execCommand('copy');
-    showCopyFeedback(btn);
-  } catch (err) {
-    alert('Erro ao copiar a mensagem.');
-  }
-  document.body.removeChild(textarea);
-}
-
-function showCopyFeedback(btn) {
-  const originalText = btn.textContent;
-  btn.textContent = '✓ Copiado com sucesso!';
-  btn.style.fontWeight = 'bold';
-  setTimeout(() => {
-    btn.textContent = originalText;
-    btn.style.fontWeight = 'normal';
-  }, 2000);
-}
-
-// 9. Gerenciador de Fotos
 function uploadPhoto(event, monthId) {
   const file = event.target.files[0];
   if (!file) return;
@@ -695,10 +750,18 @@ function renderPhotos(monthId) {
 
   grid.innerHTML = photos.map((src, index) => `
     <div class="photo-card">
-      <img src="${src}" onclick="openPhoto('${src}')" alt="Foto do Campo">
-      <button class="photo-delete" onclick="deletePhoto('${monthId}', ${index})">✕</button>
+      <img src="${src}" alt="Foto do Campo">
+      <button class="photo-delete" data-month="${monthId}" data-index="${index}">✕</button>
     </div>
   `).join('');
+
+  grid.querySelectorAll('.photo-delete').forEach(btn => {
+    btn.onclick = (e) => {
+      const mId = e.target.getAttribute('data-month');
+      const idx = parseInt(e.target.getAttribute('data-index'));
+      deletePhoto(mId, idx);
+    };
+  });
 }
 
 function deletePhoto(monthId, index) {
@@ -707,12 +770,3 @@ function deletePhoto(monthId, index) {
     renderPhotos(monthId);
   }
 }
-
-function openPhoto(src) {
-  const w = window.open("");
-  if (w) {
-    w.document.write(`<body style="margin:0; background:var(--navy-dark); display:flex; align-items:center; justify-content:center; min-height:100vh;"><img src="${src}" style="max-width:100%; max-height:100vh; object-fit:contain;"></body>`);
-  }
-}
-
-window.onload = initApp;
