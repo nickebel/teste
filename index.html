@@ -592,7 +592,7 @@
   </header>
 
   <div class="quote-box">
-    <div class="quote-title" id="quoteTitle">TEXTO DIÁRIO — JW.ORG</div>
+    <div class="quote-title" id="quoteTitle">TEXTO DIÁRIO — WOL.JW.ORG</div>
     <div class="quote-text" id="dailyQuote">Buscando o texto diário de hoje...</div>
     <div class="quote-comment" id="dailyComment"></div>
     <button class="toggle-comment-btn" id="toggleCommentBtn" style="display:none;" onclick="toggleComment()">Ler Comentário</button>
@@ -934,62 +934,56 @@
       return h + (m / 60);
     }
 
-    // Busca o Texto Diário usando API do RSS2JSON (Zero falhas no GitHub Pages)
+    // Leitura direta da WOL baseada na estrutura do link enviado
     async function fetchDailyText() {
       const quoteTitle = document.getElementById('quoteTitle');
       const quoteText = document.getElementById('dailyQuote');
       const quoteComment = document.getElementById('dailyComment');
       const toggleBtn = document.getElementById('toggleCommentBtn');
 
-      const rssUrl = encodeURIComponent('https://www.jw.org/pt/noticias/jw/rss/DailyText/feed.xml');
-      const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`;
+      const targetUrl = 'https://wol.jw.org/pt/wol/d/r5/lp-t/1102026207';
+      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
 
       try {
-        const response = await fetch(apiUrl);
-        if (!response.ok) throw new Error("Erro na requisição");
+        const response = await fetch(proxyUrl);
         const data = await response.json();
 
-        if (data && data.items && data.items.length > 0) {
-          const itemHoje = data.items[0];
+        if (data.contents) {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(data.contents, 'text/html');
 
-          quoteTitle.textContent = `TEXTO DIÁRIO — ${itemHoje.title.toUpperCase()}`;
+          const headerEl = doc.querySelector('header h2') || doc.querySelector('h2');
+          const textoEl = doc.querySelector('.themeScrp') || doc.querySelector('.pGroup .p1') || doc.querySelector('p.themeScrp');
+          const comentarioEl = doc.querySelector('.sb') || doc.querySelector('.pGroup .p2');
 
-          // Limpa as tags HTML do conteúdo retornado pelo RSS
-          const tempDiv = document.createElement('div');
-          tempDiv.innerHTML = itemHoje.content || itemHoje.description;
+          if (headerEl) quoteTitle.textContent = `TEXTO DIÁRIO — ${headerEl.textContent.trim().toUpperCase()}`;
+          
+          if (textoEl) {
+            quoteText.innerHTML = textoEl.innerHTML;
+          }
 
-          const textoBiblico = tempDiv.querySelector('p') ? tempDiv.querySelector('p').innerHTML : tempDiv.innerHTML;
-          quoteText.innerHTML = textoBiblico;
-
-          // Extrai o comentário caso exista
-          const paragrafos = tempDiv.querySelectorAll('p');
-          if (paragrafos.length > 1) {
-            let comentarioCompleto = '';
-            for (let i = 1; i < paragrafos.length; i++) {
-              comentarioCompleto += paragrafos[i].outerHTML;
-            }
-            quoteComment.innerHTML = comentarioCompleto;
+          if (comentarioEl) {
+            quoteComment.innerHTML = comentarioEl.innerHTML;
             toggleBtn.style.display = 'inline-block';
+          } else {
+            // Pega o restante dos parágrafos da publicação caso esteja dividida em pGroup
+            const todosParagrafos = doc.querySelectorAll('.pGroup p');
+            if (todosParagrafos.length > 1) {
+              let textoComentario = '';
+              for(let i = 1; i < todosParagrafos.length; i++) {
+                textoComentario += `<p style="margin-bottom:0.5rem">${todosParagrafos[i].innerHTML}</p>`;
+              }
+              quoteComment.innerHTML = textoComentario;
+              toggleBtn.style.display = 'inline-block';
+            }
           }
           return;
         }
-      } catch (e) {
-        console.log("Tentando fallback de backup...");
+      } catch (err) {
+        console.log("Erro ao processar página da WOL.");
       }
 
-      // Se por algum motivo o feed RSS falhar, carrega um texto inspirador padrão do dia da semana
-      const frasesPadrao = [
-        "Domingo: Oportunidade perfeita para planejar uma semana de pregação abençoada.",
-        "Segunda-feira: 'Seja forte e corajoso... Jeová, seu Deus, está com você onde quer que você vá.' — Josué 1:9",
-        "Terça-feira: Cada esforço no ministério demonstra seu amor por Deus e pelas pessoas.",
-        "Quarta-feira: 'Confie em Jeová de todo o seu coração e não se apoie no seu próprio entendimento.' — Prov. 3:5",
-        "Quinta-feira: Perseverança no campo traz frutos que duram para sempre.",
-        "Sexta-feira: Termine a semana com a alegria de ter dado o seu melhor para Jeová.",
-        "Sábado: 'Quão belos são os pés daqueles que declaram boas novas!' — Rom. 10:15"
-      ];
-      const diaDaSemana = new Date().getDay();
-      quoteTitle.textContent = "INSPIRAÇÃO DO DIA";
-      quoteText.textContent = frasesPadrao[diaDaSemana];
+      quoteText.textContent = "Não foi possível carregar o texto diário no momento.";
     }
 
     function toggleComment() {
