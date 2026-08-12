@@ -14,7 +14,7 @@ import {
   getDoc 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// SUAS CHAVES DO SEU PROJETO FIREBASE (teste-7bf43)
+// CHAVES DO SEU PROJETO FIREBASE (teste-7bf43)
 const firebaseConfig = {
   apiKey: "AIzaSyCGxsOtrqrASUIS8s6nemWkrybhwfGa5KI",
   authDomain: "teste-7bf43.firebaseapp.com",
@@ -30,30 +30,31 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 let currentUser = null;
+let userData = { username: "", gender: "Irmão", themeIndex: 0 };
 let isSignUpMode = false;
 
-// 20 Temas de Cores
+// 20 Temas de Cores com Emojis
 const colorThemes = [
-  { name: "Azul Marinho Clássico", bg: "#EEEBDA", navy: "#282B4A", dark: "#121426" },
-  { name: "Verde Botânico", bg: "#E8F0E6", navy: "#2D5A27", dark: "#132810" },
-  { name: "Roxo Real", bg: "#F0E6F5", navy: "#4A285A", dark: "#1F0E28" },
-  { name: "Terracota Quente", bg: "#F7EBE6", navy: "#6B321D", dark: "#301308" },
-  { name: "Cinza Urbano", bg: "#EAEAEA", navy: "#333A42", dark: "#1A1D21" },
-  { name: "Vinho Elegante", bg: "#F5E6E8", navy: "#5A1E28", dark: "#280A0F" },
-  { name: "Azul Petróleo", bg: "#E3F2F5", navy: "#1D5363", dark: "#0A252E" },
-  { name: "Ouro Rosa", bg: "#FBECEF", navy: "#6E3B47", dark: "#36181F" },
-  { name: "Verde Oliva", bg: "#EFEFE0", navy: "#4A4E28", dark: "#21230F" },
-  { name: "Cobre Profundo", bg: "#F7ECE1", navy: "#683D1B", dark: "#2E1908" },
-  { name: "Azul Noturno", bg: "#E1E8F0", navy: "#1B3B6F", dark: "#0A1931" },
-  { name: "Sálvia Suave", bg: "#E4ECE7", navy: "#365345", dark: "#16251E" },
-  { name: "Ametista", bg: "#EFEAF8", navy: "#3B2863", dark: "#170D2C" },
-  { name: "Areia Dourada", bg: "#F5EFE0", navy: "#5A4828", dark: "#281F0E" },
-  { name: "Cereja Escuro", bg: "#F7E6EB", navy: "#6B1D33", dark: "#300813" },
-  { name: "Menta Fresco", bg: "#E2F3EE", navy: "#1F5243", dark: "#0B261E" },
-  { name: "Chocolate", bg: "#F2EBE5", navy: "#4A3222", dark: "#21140A" },
-  { name: "Azul Celeste", bg: "#E5F0F8", navy: "#244B6E", dark: "#0C2033" },
-  { name: "Grafite Escuro", bg: "#E0E0E0", navy: "#22252A", dark: "#0E0F12" },
-  { name: "Açafrão Pôr do Sol", bg: "#FAF0E6", navy: "#6B431D", dark: "#301A08" }
+  { name: "Azul Marinho Clássico", bg: "#EEEBDA", navy: "#282B4A", dark: "#121426", emoji: "🌊" },
+  { name: "Verde Botânico", bg: "#E8F0E6", navy: "#2D5A27", dark: "#132810", emoji: "🌿" },
+  { name: "Roxo Real", bg: "#F0E6F5", navy: "#4A285A", dark: "#1F0E28", emoji: "👑" },
+  { name: "Terracota Quente", bg: "#F7EBE6", navy: "#6B321D", dark: "#301308", emoji: "🏺" },
+  { name: "Cinza Urbano", bg: "#EAEAEA", navy: "#333A42", dark: "#1A1D21", emoji: "🏢" },
+  { name: "Vinho Elegante", bg: "#F5E6E8", navy: "#5A1E28", dark: "#280A0F", emoji: "🍷" },
+  { name: "Azul Petróleo", bg: "#E3F2F5", navy: "#1D5363", dark: "#0A252E", emoji: "🛢️" },
+  { name: "Ouro Rosa", bg: "#FBECEF", navy: "#6E3B47", dark: "#36181F", emoji: "✨" },
+  { name: "Verde Oliva", bg: "#EFEFE0", navy: "#4A4E28", dark: "#21230F", emoji: "🫒" },
+  { name: "Cobre Profundo", bg: "#F7ECE1", navy: "#683D1B", dark: "#2E1908", emoji: "🍂" },
+  { name: "Azul Noturno", bg: "#E1E8F0", navy: "#1B3B6F", dark: "#0A1931", emoji: "🌙" },
+  { name: "Sálvia Suave", bg: "#E4ECE7", navy: "#365345", dark: "#16251E", emoji: "🍃" },
+  { name: "Ametista", bg: "#EFEAF8", navy: "#3B2863", dark: "#170D2C", emoji: "💎" },
+  { name: "Areia Dourada", bg: "#F5EFE0", navy: "#5A4828", dark: "#281F0E", emoji: "🏜️" },
+  { name: "Cereja Escuro", bg: "#F7E6EB", navy: "#6B1D33", dark: "#300813", emoji: "🍒" },
+  { name: "Menta Fresco", bg: "#E2F3EE", navy: "#1F5243", dark: "#0B261E", emoji: "🌱" },
+  { name: "Chocolate", bg: "#F2EBE5", navy: "#4A3222", dark: "#21140A", emoji: "🍫" },
+  { name: "Azul Celeste", bg: "#E5F0F8", navy: "#244B6E", dark: "#0C2033", emoji: "☁️" },
+  { name: "Grafite Escuro", bg: "#E0E0E0", navy: "#22252A", dark: "#0E0F12", emoji: "⚙️" },
+  { name: "Açafrão Pôr do Sol", bg: "#FAF0E6", navy: "#6B431D", dark: "#301A08", emoji: "🌅" }
 ];
 
 // Dados dos Meses
@@ -371,25 +372,47 @@ function validarSenhaForte(senha) {
   return null;
 }
 
-// Configuração dos Eventos da Tela de Autenticação
+// Popula o seletor de temas da tela de Login
+const authThemeSelect = document.getElementById('authThemeSelect');
+if (authThemeSelect) {
+  colorThemes.forEach((theme, idx) => {
+    const option = document.createElement('option');
+    option.value = idx;
+    option.textContent = `${theme.emoji} ${theme.name}`;
+    authThemeSelect.appendChild(option);
+  });
+}
+
+// Alterna entre tela de Login e Cadastro
 document.getElementById('authToggleLink').onclick = function() {
   isSignUpMode = !isSignUpMode;
   document.getElementById('authTitle').textContent = isSignUpMode ? "Criar Nova Conta" : "Entrar no Sistema";
   document.getElementById('authSubmitBtn').textContent = isSignUpMode ? "Cadastrar" : "Entrar";
   document.getElementById('authToggleLink').textContent = isSignUpMode ? "Já tem conta? Faça login aqui" : "Não tem conta? Cadastre-se aqui";
+  document.getElementById('signUpFields').style.display = isSignUpMode ? 'block' : 'none';
   document.getElementById('passwordHint').style.display = isSignUpMode ? 'block' : 'none';
 };
 
+// Cadastro e Login
 document.getElementById('authSubmitBtn').onclick = async function() {
   const email = document.getElementById('authEmail').value;
   const password = document.getElementById('authPassword').value;
+  const selectedThemeIndex = parseInt(document.getElementById('authThemeSelect').value) || 0;
 
   if (!email || !password) {
-    alert("Preencha todos os campos!");
+    alert("Preencha todos os campos obrigatórios!");
     return;
   }
 
   if (isSignUpMode) {
+    const username = document.getElementById('authUsername').value;
+    const gender = document.getElementById('authGender').value;
+
+    if (!username) {
+      alert("Por favor, digite seu nome de usuário!");
+      return;
+    }
+
     const erroSenha = validarSenhaForte(password);
     if (erroSenha) {
       alert(erroSenha);
@@ -398,8 +421,16 @@ document.getElementById('authSubmitBtn').onclick = async function() {
 
     try {
       const userCred = await createUserWithEmailAndPassword(auth, email, password);
+      
+      // Salva os dados do perfil do usuário no Firestore
+      await setDoc(doc(db, "users", userCred.user.uid), {
+        username: username,
+        gender: gender,
+        themeIndex: selectedThemeIndex
+      });
+
       await sendEmailVerification(userCred.user);
-      alert("Conta criada com sucesso! Enviamos um e-mail de confirmação. Verifique sua caixa de entrada antes de entrar.");
+      alert("Conta criada com sucesso! Enviamos um e-mail de confirmação. Verifique sua caixa de entrada.");
       document.getElementById('authToggleLink').click();
     } catch (err) {
       alert("Erro ao cadastrar: " + err.message);
@@ -407,11 +438,13 @@ document.getElementById('authSubmitBtn').onclick = async function() {
   } else {
     try {
       const userCred = await signInWithEmailAndPassword(auth, email, password);
-      if (!userCred.user.emailVerified) {
-        alert("Sua conta ainda não foi confirmada. Verifique o link enviado para seu e-mail.");
-        await signOut(auth);
-        return;
-      }
+      
+      // Atualiza o tema de cor caso a pessoa tenha mudado na tela de login
+      await setDoc(doc(db, "users", userCred.user.uid), {
+        themeIndex: selectedThemeIndex
+      }, { merge: true });
+
+      setTheme(selectedThemeIndex);
     } catch (err) {
       alert("Erro ao entrar: " + err.message);
     }
@@ -422,12 +455,34 @@ document.getElementById('logoutBtn').onclick = function() {
   signOut(auth).then(() => window.location.reload());
 };
 
-// Monitoramento de Login no Firebase
+// Monitora Autenticação
 onAuthStateChanged(auth, async (user) => {
-  if (user && user.emailVerified) {
+  if (user) {
     currentUser = user;
+    
+    // Busca os dados do usuário no Firestore
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    if (userDoc.exists()) {
+      userData = userDoc.data();
+    }
+
     document.getElementById('authOverlay').style.display = 'none';
     document.getElementById('appContainer').classList.add('active');
+    
+    // Atualiza a Saudação Personalizada (Ex: "Irmão João" / "Irmã Maria")
+    const tratamento = userData.gender || "Irmão(ã)";
+    const nome = userData.username || "Usuário";
+    
+    const badge = document.getElementById('userGreetingBadge');
+    if (badge) badge.textContent = `👋 ${tratamento} ${nome}`;
+    
+    const subtitle = document.getElementById('headerSubtitle');
+    if (subtitle) subtitle.textContent = `Acompanhamento do(a) ${tratamento} ${nome}`;
+
+    if (userData.themeIndex !== undefined) {
+      setTheme(userData.themeIndex);
+    }
+
     initApp();
   } else {
     document.getElementById('authOverlay').style.display = 'flex';
@@ -435,7 +490,7 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// Leitura do Texto Diário
+// Leitura do Texto Diário da WOL
 async function fetchDailyText() {
   const quoteTitle = document.getElementById('quoteTitle');
   const quoteText = document.getElementById('dailyQuote');
@@ -472,7 +527,7 @@ async function fetchDailyText() {
 
   quoteTitle.textContent = "TEXTO DIÁRIO — QUARTA-FEIRA, 12 DE AGOSTO";
   quoteText.innerHTML = "Por intermédio dele temos o livramento por resgate, por meio do sangue dele, sim, o perdão das nossas falhas, segundo as riquezas da sua bondade imerecida. — <i>Efé. 1:7.</i>";
-  quoteComment.innerHTML = "Jesus, por ser perfeito, era como Adão antes de pecar. (1 Cor. 15:45) Ao morrer, Jesus pôde fazer expiação pelo pecado de Adão, ou seja, recuperar aquilo que Adão tinha perdido. (Rom. 5:19)... — Heb. 9:14. w25.02 5 §§ 12-13";
+  quoteComment.innerHTML = "Jesus, por ser perfeito, era como Adão antes de pecar... — Heb. 9:14. w25.02 5 §§ 12-13";
   toggleBtn.style.display = 'inline-block';
 }
 
@@ -488,17 +543,7 @@ document.getElementById('toggleCommentBtn').onclick = function() {
   }
 };
 
-function toggleThemeMenu() {
-  const grid = document.getElementById('colorGrid');
-  const sectionTitle = document.querySelector('.color-section-title');
-  if (grid) {
-    const isHidden = grid.style.display === 'none' || grid.style.display === '';
-    grid.style.display = isHidden ? 'grid' : 'none';
-    if (sectionTitle) sectionTitle.style.display = isHidden ? 'block' : 'none';
-  }
-}
-
-function setTheme(index, save = true) {
+function setTheme(index) {
   const theme = colorThemes[index];
   if (!theme) return;
 
@@ -508,16 +553,9 @@ function setTheme(index, save = true) {
   document.documentElement.style.setProperty('--navy-card', hexToRgba(theme.navy, 0.92));
   document.documentElement.style.setProperty('--border-color', hexToRgba(theme.bg, 0.25));
 
-  const themeBtn = document.getElementById('themeSwitchBtn');
-  if (themeBtn) themeBtn.textContent = `🎨 Alterar Tema (${theme.name})`;
-
-  document.querySelectorAll('.color-dot').forEach((dot, i) => {
-    dot.classList.toggle('selected', i === index);
+  document.querySelectorAll('.color-card-item').forEach((item, i) => {
+    item.classList.toggle('selected', i === index);
   });
-
-  if (save) {
-    localStorage.setItem('selectedTheme', index);
-  }
 }
 
 function hexToRgba(hex, alpha) {
@@ -528,6 +566,7 @@ function hexToRgba(hex, alpha) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+// Inicializador
 function initApp() {
   const sidebarMenu = document.getElementById('sidebarMenu');
   const monthsMenu = document.getElementById('monthsMenu');
@@ -536,40 +575,25 @@ function initApp() {
 
   if (!monthsMenu || !colorGrid || !monthsContainer) return;
 
-  colorGrid.style.display = 'none';
-  const sectionTitle = document.querySelector('.color-section-title');
-  if (sectionTitle) sectionTitle.style.display = 'none';
-
-  if (sidebarMenu && !document.getElementById('themeSwitchBtn')) {
-    const switchBtn = document.createElement('button');
-    switchBtn.id = 'themeSwitchBtn';
-    switchBtn.className = 'btn';
-    switchBtn.style.marginTop = '1rem';
-    switchBtn.style.marginBottom = '0.5rem';
-    switchBtn.style.background = 'rgba(255,255,255,0.1)';
-    switchBtn.onclick = toggleThemeMenu;
-    sidebarMenu.appendChild(switchBtn);
-  }
-
+  // Renderiza a Nova Lista de Cores em Cartões com Emojis
   colorGrid.innerHTML = '';
   colorThemes.forEach((theme, idx) => {
-    const dot = document.createElement('div');
-    dot.className = `color-dot ${idx === 0 ? 'selected' : ''}`;
-    dot.style.background = `linear-gradient(135deg, ${theme.navy} 50%, ${theme.bg} 50%)`;
-    dot.title = theme.name;
-    dot.onclick = () => {
-      setTheme(idx);
-      toggleThemeMenu();
-    };
-    colorGrid.appendChild(dot);
-  });
+    const item = document.createElement('div');
+    item.className = `color-card-item ${idx === 0 ? 'selected' : ''}`;
+    
+    item.innerHTML = `
+      <div class="color-swatch-circle" style="background: ${theme.navy};"></div>
+      <span>${theme.emoji} ${theme.name}</span>
+    `;
 
-  const savedTheme = localStorage.getItem('selectedTheme');
-  if (savedTheme !== null) {
-    setTheme(parseInt(savedTheme), false);
-  } else {
-    setTheme(0, false);
-  }
+    item.onclick = async () => {
+      setTheme(idx);
+      if (currentUser) {
+        await setDoc(doc(db, "users", currentUser.uid), { themeIndex: idx }, { merge: true });
+      }
+    };
+    colorGrid.appendChild(item);
+  });
 
   monthsMenu.innerHTML = '';
   monthsContainer.innerHTML = '';
@@ -633,39 +657,17 @@ function initApp() {
         <div class="report-text" id="report-text-${month.id}"></div>
         <button class="btn" id="copy-btn-${month.id}">Copiar Mensagem</button>
       </div>
-      <div class="photo-section">
-        <div class="photo-title">
-          <span>Fotos do Mês</span>
-          <label class="photo-upload-btn">
-            + Adicionar Foto
-            <input type="file" accept="image/*" style="display:none;" id="file-input-${month.id}">
-          </label>
-        </div>
-        <div class="photo-grid" id="photo-grid-${month.id}"></div>
-      </div>
     `;
 
     monthsContainer.appendChild(monthDiv);
 
-    // Eventos do botão de copiar e foto para cada mês
     setTimeout(() => {
       const copyBtn = document.getElementById(`copy-btn-${month.id}`);
-      if (copyBtn) {
-        copyBtn.onclick = () => copyReport(month.id);
-      }
-
-      const fileInput = document.getElementById(`file-input-${month.id}`);
-      if (fileInput) {
-        fileInput.onchange = (e) => uploadPhoto(e, month.id);
-      }
+      if (copyBtn) copyBtn.onclick = () => copyReport(month.id);
     }, 100);
   });
 
-  planData.forEach(m => {
-    updateProgress(m.id, m.title);
-    renderPhotos(m.id);
-  });
-
+  planData.forEach(m => updateProgress(m.id, m.title));
   fetchDailyText();
 }
 
@@ -713,8 +715,11 @@ function updateProgress(monthId, monthTitle) {
 
   if (reportBox && reportText) {
     if (totalDone > 0) {
+      const tratamento = userData.gender || "Irmão(ã)";
+      const nome = userData.username ? `, ${tratamento} ${userData.username}` : "";
+      
       reportBox.classList.add('active');
-      reportText.textContent = `Olá! Eu participei no campo no mês de ${monthTitle}, fiz ${doneFormatted} de horas de campo cumpridas.`;
+      reportText.textContent = `Olá${nome}! Eu participei no campo no mês de ${monthTitle}, fiz ${doneFormatted} de horas de campo cumpridas.`;
     } else {
       reportBox.classList.remove('active');
     }
@@ -731,42 +736,4 @@ function copyReport(monthId) {
     btn.textContent = '✓ Copiado com sucesso!';
     setTimeout(() => btn.textContent = originalText, 2000);
   });
-}
-
-function uploadPhoto(event, monthId) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const url = URL.createObjectURL(file);
-  if (!photoStore[monthId]) photoStore[monthId] = [];
-  photoStore[monthId].push(url);
-  renderPhotos(monthId);
-}
-
-function renderPhotos(monthId) {
-  const grid = document.getElementById(`photo-grid-${monthId}`);
-  if (!grid) return;
-  const photos = photoStore[monthId] || [];
-
-  grid.innerHTML = photos.map((src, index) => `
-    <div class="photo-card">
-      <img src="${src}" alt="Foto do Campo">
-      <button class="photo-delete" data-month="${monthId}" data-index="${index}">✕</button>
-    </div>
-  `).join('');
-
-  grid.querySelectorAll('.photo-delete').forEach(btn => {
-    btn.onclick = (e) => {
-      const mId = e.target.getAttribute('data-month');
-      const idx = parseInt(e.target.getAttribute('data-index'));
-      deletePhoto(mId, idx);
-    };
-  });
-}
-
-function deletePhoto(monthId, index) {
-  if (photoStore[monthId]) {
-    photoStore[monthId].splice(index, 1);
-    renderPhotos(monthId);
-  }
 }
