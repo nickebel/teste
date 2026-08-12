@@ -22,10 +22,13 @@ const colorThemes = [
   { name: "Açafrão Pôr do Sol", bg: "#FAF0E6", navy: "#6B431D", dark: "#301A08" }
 ];
 
+let currentThemeIndex = 0;
+
+// Dados de Todos os Meses
 const planData = [
   {
     id: "ago-2026", label: "Agosto 2026", title: "AGOSTO 2026", target: "50h",
-    rule: "Observação: o plano de agosto foi mantido como combinado.",
+    rule: "Observação: o plano de agosto foi mantido como combinado. Se você adiantar horas em outros dias, pode reduzir a carga do dia 31.",
     days: [
       { date: "11/08", day: "Terça", meta: "2h" }, { date: "12/08", day: "Quarta", meta: "2h30" },
       { date: "13/08", day: "Quinta", meta: "2h30" }, { date: "14/08", day: "Sexta", meta: "2h30" },
@@ -55,6 +58,264 @@ const planData = [
       { date: "25/09", day: "Sexta", meta: "2h" }, { date: "28/09", day: "Segunda", meta: "2h" },
       { date: "29/09", day: "Terça", meta: "2h" }, { date: "30/09", day: "Quarta", meta: "2h" }
     ]
+  },
+  {
+    id: "out-2026", label: "Outubro 2026", title: "OUTUBRO 2026", target: "50h",
+    rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+    days: [
+      { date: "01/10", day: "Quinta", meta: "2h30" }, { date: "02/10", day: "Sexta", meta: "2h30" },
+      { date: "05/10", day: "Segunda", meta: "2h30" }, { date: "06/10", day: "Terça", meta: "2h" },
+      { date: "07/10", day: "Quarta", meta: "2h30" }, { date: "08/10", day: "Quinta", meta: "2h30" },
+      { date: "09/10", day: "Sexta", meta: "2h30" }, { date: "12/10", day: "Segunda", meta: "2h30" },
+      { date: "13/10", day: "Terça", meta: "2h" }, { date: "14/10", day: "Quarta", meta: "2h30" },
+      { date: "15/10", day: "Quinta", meta: "2h30" }, { date: "16/10", day: "Sexta", meta: "2h30" },
+      { date: "19/10", day: "Segunda", meta: "2h30" }, { date: "20/10", day: "Terça", meta: "2h" },
+      { date: "21/10", day: "Quarta", meta: "2h30" }, { date: "22/10", day: "Quinta", meta: "2h" },
+      { date: "23/10", day: "Sexta", meta: "2h" }, { date: "26/10", day: "Segunda", meta: "2h" },
+      { date: "27/10", day: "Terça", meta: "2h" }, { date: "28/10", day: "Quarta", meta: "2h" },
+      { date: "29/10", day: "Quinta", meta: "2h" }, { date: "30/10", day: "Sexta", meta: "2h" }
+    ]
+  },
+  {
+    id: "nov-2026", label: "Novembro 2026", title: "NOVEMBRO 2026", target: "50h",
+    rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+    days: [
+      { date: "02/11", day: "Segunda", meta: "2h30" }, { date: "03/11", day: "Terça", meta: "2h" },
+      { date: "04/11", day: "Quarta", meta: "2h30" }, { date: "05/11", day: "Quinta", meta: "2h30" },
+      { date: "06/11", day: "Sexta", meta: "2h30" }, { date: "09/11", day: "Segunda", meta: "2h30" },
+      { date: "10/11", day: "Terça", meta: "2h" }, { date: "11/11", day: "Quarta", meta: "2h30" },
+      { date: "12/11", day: "Quinta", meta: "2h30" }, { date: "13/11", day: "Sexta", meta: "2h30" },
+      { date: "16/11", day: "Segunda", meta: "2h30" }, { date: "17/11", day: "Terça", meta: "2h" },
+      { date: "18/11", day: "Quarta", meta: "2h30" }, { date: "19/11", day: "Quinta", meta: "2h30" },
+      { date: "20/11", day: "Sexta", meta: "2h30" }, { date: "23/11", day: "Segunda", meta: "2h30" },
+      { date: "24/11", day: "Terça", meta: "2h" }, { date: "25/11", day: "Quarta", meta: "2h30" },
+      { date: "26/11", day: "Quinta", meta: "2h30" }, { date: "27/11", day: "Sexta", meta: "2h30" },
+      { date: "30/11", day: "Segunda", meta: "2h" }
+    ]
+  },
+  {
+    id: "dez-2026", label: "Dezembro 2026", title: "DEZEMBRO 2026", target: "50h",
+    rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+    days: [
+      { date: "01/12", day: "Terça", meta: "2h" }, { date: "02/12", day: "Quarta", meta: "2h30" },
+      { date: "03/12", day: "Quinta", meta: "2h30" }, { date: "04/12", day: "Sexta", meta: "2h30" },
+      { date: "07/12", day: "Segunda", meta: "2h30" }, { date: "08/12", day: "Terça", meta: "2h" },
+      { date: "09/12", day: "Quarta", meta: "2h30" }, { date: "10/12", day: "Quinta", meta: "2h30" },
+      { date: "11/12", day: "Sexta", meta: "2h30" }, { date: "14/12", day: "Segunda", meta: "2h30" },
+      { date: "15/12", day: "Terça", meta: "2h" }, { date: "16/12", day: "Quarta", meta: "2h" },
+      { date: "17/12", day: "Quinta", meta: "2h" }, { date: "18/12", day: "Sexta", meta: "2h" },
+      { date: "21/12", day: "Segunda", meta: "2h" }, { date: "22/12", day: "Terça", meta: "2h" },
+      { date: "23/12", day: "Quarta", meta: "2h" }, { date: "24/12", day: "Quinta", meta: "2h" },
+      { date: "25/12", day: "Sexta", meta: "2h" }, { date: "28/12", day: "Segunda", meta: "2h" },
+      { date: "29/12", day: "Terça", meta: "2h" }, { date: "30/12", day: "Quarta", meta: "2h" },
+      { date: "31/12", day: "Quinta", meta: "2h" }
+    ]
+  },
+  {
+    id: "jan-2027", label: "Janeiro 2027", title: "JANEIRO 2027", target: "50h",
+    rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+    days: [
+      { date: "01/01", day: "Sexta", meta: "2h30" }, { date: "04/01", day: "Segunda", meta: "2h30" },
+      { date: "05/01", day: "Terça", meta: "2h" }, { date: "06/01", day: "Quarta", meta: "2h30" },
+      { date: "07/01", day: "Quinta", meta: "2h30" }, { date: "08/01", day: "Sexta", meta: "2h30" },
+      { date: "11/01", day: "Segunda", meta: "2h30" }, { date: "12/01", day: "Terça", meta: "2h" },
+      { date: "13/01", day: "Quarta", meta: "2h30" }, { date: "14/01", day: "Quinta", meta: "2h30" },
+      { date: "15/01", day: "Sexta", meta: "2h30" }, { date: "18/01", day: "Segunda", meta: "2h30" },
+      { date: "19/01", day: "Terça", meta: "2h" }, { date: "20/01", day: "Quarta", meta: "2h30" },
+      { date: "21/01", day: "Quinta", meta: "2h30" }, { date: "22/01", day: "Sexta", meta: "2h30" },
+      { date: "25/01", day: "Segunda", meta: "2h30" }, { date: "26/01", day: "Terça", meta: "2h" },
+      { date: "27/01", day: "Quarta", meta: "2h30" }, { date: "28/01", day: "Quinta", meta: "2h30" },
+      { date: "29/01", day: "Sexta", meta: "2h" }
+    ]
+  },
+  {
+    id: "fev-2027", label: "Fevereiro 2027", title: "FEVEREIRO 2027", target: "50h",
+    rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+    days: [
+      { date: "01/02", day: "Segunda", meta: "2h30" }, { date: "02/02", day: "Terça", meta: "2h" },
+      { date: "03/02", day: "Quarta", meta: "2h30" }, { date: "04/02", day: "Quinta", meta: "2h30" },
+      { date: "05/02", day: "Sexta", meta: "2h30" }, { date: "06/02", day: "Sábado", meta: "2h" },
+      { date: "08/02", day: "Segunda", meta: "2h30" }, { date: "09/02", day: "Terça", meta: "2h" },
+      { date: "10/02", day: "Quarta", meta: "2h30" }, { date: "11/02", day: "Quinta", meta: "2h30" },
+      { date: "12/02", day: "Sexta", meta: "2h30" }, { date: "15/02", day: "Segunda", meta: "2h30" },
+      { date: "16/02", day: "Terça", meta: "2h" }, { date: "17/02", day: "Quarta", meta: "2h30" },
+      { date: "18/02", day: "Quinta", meta: "2h30" }, { date: "19/02", day: "Sexta", meta: "2h30" },
+      { date: "22/02", day: "Segunda", meta: "2h30" }, { date: "23/02", day: "Terça", meta: "2h" },
+      { date: "24/02", day: "Quarta", meta: "2h30" }, { date: "25/02", day: "Quinta", meta: "2h30" },
+      { date: "26/02", day: "Sexta", meta: "2h30" }
+    ]
+  },
+  {
+    id: "mar-2027", label: "Março 2027", title: "MARÇO 2027", target: "50h",
+    rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+    days: [
+      { date: "01/03", day: "Segunda", meta: "2h30" }, { date: "02/03", day: "Terça", meta: "2h" },
+      { date: "03/03", day: "Quarta", meta: "2h30" }, { date: "04/03", day: "Quinta", meta: "2h30" },
+      { date: "05/03", day: "Sexta", meta: "2h30" }, { date: "08/03", day: "Segunda", meta: "2h30" },
+      { date: "09/03", day: "Terça", meta: "2h" }, { date: "10/03", day: "Quarta", meta: "2h30" },
+      { date: "11/03", day: "Quinta", meta: "2h30" }, { date: "12/03", day: "Sexta", meta: "2h30" },
+      { date: "15/03", day: "Segunda", meta: "2h" }, { date: "16/03", day: "Terça", meta: "2h" },
+      { date: "17/03", day: "Quarta", meta: "2h" }, { date: "18/03", day: "Quinta", meta: "2h" },
+      { date: "19/03", day: "Sexta", meta: "2h" }, { date: "22/03", day: "Segunda", meta: "2h" },
+      { date: "23/03", day: "Terça", meta: "2h" }, { date: "24/03", day: "Quarta", meta: "2h" },
+      { date: "25/03", day: "Quinta", meta: "2h" }, { date: "26/03", day: "Sexta", meta: "2h" },
+      { date: "29/03", day: "Segunda", meta: "2h" }, { date: "30/03", day: "Terça", meta: "2h" },
+      { date: "31/03", day: "Quarta", meta: "2h" }
+    ]
+  },
+  {
+    id: "abr-2027", label: "Abril 2027", title: "ABRIL 2027", target: "50h",
+    rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+    days: [
+      { date: "01/04", day: "Quinta", meta: "2h30" }, { date: "02/04", day: "Sexta", meta: "2h30" },
+      { date: "05/04", day: "Segunda", meta: "2h30" }, { date: "06/04", day: "Terça", meta: "2h" },
+      { date: "07/04", day: "Quarta", meta: "2h30" }, { date: "08/04", day: "Quinta", meta: "2h30" },
+      { date: "09/04", day: "Sexta", meta: "2h30" }, { date: "12/04", day: "Segunda", meta: "2h30" },
+      { date: "13/04", day: "Terça", meta: "2h" }, { date: "14/04", day: "Quarta", meta: "2h30" },
+      { date: "15/04", day: "Quinta", meta: "2h30" }, { date: "16/04", day: "Sexta", meta: "2h30" },
+      { date: "19/04", day: "Segunda", meta: "2h30" }, { date: "20/04", day: "Terça", meta: "2h" },
+      { date: "21/04", day: "Quarta", meta: "2h30" }, { date: "22/04", day: "Quinta", meta: "2h" },
+      { date: "23/04", day: "Sexta", meta: "2h" }, { date: "26/04", day: "Segunda", meta: "2h" },
+      { date: "27/04", day: "Terça", meta: "2h" }, { date: "28/04", day: "Quarta", meta: "2h" },
+      { date: "29/04", day: "Quinta", meta: "2h" }, { date: "30/04", day: "Sexta", meta: "2h" }
+    ]
+  },
+  {
+    id: "mai-2027", label: "Maio 2027", title: "MAIO 2027", target: "50h",
+    rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+    days: [
+      { date: "03/05", day: "Segunda", meta: "2h30" }, { date: "04/05", day: "Terça", meta: "2h" },
+      { date: "05/05", day: "Quarta", meta: "2h30" }, { date: "06/05", day: "Quinta", meta: "2h30" },
+      { date: "07/05", day: "Sexta", meta: "2h30" }, { date: "10/05", day: "Segunda", meta: "2h30" },
+      { date: "11/05", day: "Terça", meta: "2h" }, { date: "12/05", day: "Quarta", meta: "2h30" },
+      { date: "13/05", day: "Quinta", meta: "2h30" }, { date: "14/05", day: "Sexta", meta: "2h30" },
+      { date: "17/05", day: "Segunda", meta: "2h30" }, { date: "18/05", day: "Terça", meta: "2h" },
+      { date: "19/05", day: "Quarta", meta: "2h30" }, { date: "20/05", day: "Quinta", meta: "2h30" },
+      { date: "21/05", day: "Sexta", meta: "2h30" }, { date: "24/05", day: "Segunda", meta: "2h30" },
+      { date: "25/05", day: "Terça", meta: "2h" }, { date: "26/05", day: "Quarta", meta: "2h30" },
+      { date: "27/05", day: "Quinta", meta: "2h30" }, { date: "28/05", day: "Sexta", meta: "2h30" },
+      { date: "31/05", day: "Segunda", meta: "2h" }
+    ]
+  },
+  {
+    id: "jun-2027", label: "Junho 2027", title: "JUNHO 2027", target: "50h",
+    rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+    days: [
+      { date: "01/06", day: "Terça", meta: "2h" }, { date: "02/06", day: "Quarta", meta: "2h30" },
+      { date: "03/06", day: "Quinta", meta: "2h30" }, { date: "04/06", day: "Sexta", meta: "2h30" },
+      { date: "07/06", day: "Segunda", meta: "2h30" }, { date: "08/06", day: "Terça", meta: "2h" },
+      { date: "09/06", day: "Quarta", meta: "2h30" }, { date: "10/06", day: "Quinta", meta: "2h30" },
+      { date: "11/06", day: "Sexta", meta: "2h30" }, { date: "14/06", day: "Segunda", meta: "2h30" },
+      { date: "15/06", day: "Terça", meta: "2h" }, { date: "16/06", day: "Quarta", meta: "2h30" },
+      { date: "17/06", day: "Quinta", meta: "2h30" }, { date: "18/06", day: "Sexta", meta: "2h30" },
+      { date: "21/06", day: "Segunda", meta: "2h30" }, { date: "22/06", day: "Terça", meta: "2h" },
+      { date: "23/06", day: "Quarta", meta: "2h" }, { date: "24/06", day: "Quinta", meta: "2h" },
+      { date: "25/06", day: "Sexta", meta: "2h" }, { date: "28/06", day: "Segunda", meta: "2h" },
+      { date: "29/06", day: "Terça", meta: "2h" }, { date: "30/06", day: "Quarta", meta: "2h" }
+    ]
+  },
+  {
+    id: "jul-2027", label: "Julho 2027", title: "JULHO 2027", target: "50h",
+    rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+    days: [
+      { date: "01/07", day: "Quinta", meta: "2h30" }, { date: "02/07", day: "Sexta", meta: "2h30" },
+      { date: "05/07", day: "Segunda", meta: "2h30" }, { date: "06/07", day: "Terça", meta: "2h" },
+      { date: "07/07", day: "Quarta", meta: "2h30" }, { date: "08/07", day: "Quinta", meta: "2h30" },
+      { date: "09/07", day: "Sexta", meta: "2h30" }, { date: "12/07", day: "Segunda", meta: "2h30" },
+      { date: "13/07", day: "Terça", meta: "2h" }, { date: "14/07", day: "Quarta", meta: "2h30" },
+      { date: "15/07", day: "Quinta", meta: "2h30" }, { date: "16/07", day: "Sexta", meta: "2h30" },
+      { date: "19/07", day: "Segunda", meta: "2h30" }, { date: "20/07", day: "Terça", meta: "2h" },
+      { date: "21/07", day: "Quarta", meta: "2h30" }, { date: "22/07", day: "Quinta", meta: "2h" },
+      { date: "23/07", day: "Sexta", meta: "2h" }, { date: "26/07", day: "Segunda", meta: "2h" },
+      { date: "27/07", day: "Terça", meta: "2h" }, { date: "28/07", day: "Quarta", meta: "2h" },
+      { date: "29/07", day: "Quinta", meta: "2h" }, { date: "30/07", day: "Sexta", meta: "2h" }
+    ]
+  },
+  {
+    id: "ago-2027", label: "Agosto 2027", title: "AGOSTO 2027", target: "50h",
+    rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+    days: [
+      { date: "02/08", day: "Segunda", meta: "2h30" }, { date: "03/08", day: "Terça", meta: "2h" },
+      { date: "04/08", day: "Quarta", meta: "2h30" }, { date: "05/08", day: "Quinta", meta: "2h30" },
+      { date: "06/08", day: "Sexta", meta: "2h30" }, { date: "09/08", day: "Segunda", meta: "2h30" },
+      { date: "10/08", day: "Terça", meta: "2h" }, { date: "11/08", day: "Quarta", meta: "2h30" },
+      { date: "12/08", day: "Quinta", meta: "2h30" }, { date: "13/08", day: "Sexta", meta: "2h30" },
+      { date: "16/08", day: "Segunda", meta: "2h30" }, { date: "17/08", day: "Terça", meta: "2h" },
+      { date: "18/08", day: "Quarta", meta: "2h30" }, { date: "19/08", day: "Quinta", meta: "2h30" },
+      { date: "20/08", day: "Sexta", meta: "2h30" }, { date: "23/08", day: "Segunda", meta: "2h" },
+      { date: "24/08", day: "Terça", meta: "2h" }, { date: "25/08", day: "Quarta", meta: "2h" },
+      { date: "26/08", day: "Quinta", meta: "2h" }, { date: "27/08", day: "Sexta", meta: "2h" },
+      { date: "30/08", day: "Segunda", meta: "2h" }, { date: "31/08", day: "Terça", meta: "2h" }
+    ]
+  },
+  {
+    id: "set-2027", label: "Setembro 2027", title: "SETEMBRO 2027", target: "50h",
+    rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+    days: [
+      { date: "01/09", day: "Quarta", meta: "2h30" }, { date: "02/09", day: "Quinta", meta: "2h30" },
+      { date: "03/09", day: "Sexta", meta: "2h30" }, { date: "06/09", day: "Segunda", meta: "2h30" },
+      { date: "07/09", day: "Terça", meta: "2h" }, { date: "08/09", day: "Quarta", meta: "2h30" },
+      { date: "09/09", day: "Quinta", meta: "2h30" }, { date: "10/09", day: "Sexta", meta: "2h30" },
+      { date: "13/09", day: "Segunda", meta: "2h30" }, { date: "14/09", day: "Terça", meta: "2h" },
+      { date: "15/09", day: "Quarta", meta: "2h30" }, { date: "16/09", day: "Quinta", meta: "2h30" },
+      { date: "17/09", day: "Sexta", meta: "2h30" }, { date: "20/09", day: "Segunda", meta: "2h30" },
+      { date: "21/09", day: "Terça", meta: "2h" }, { date: "22/09", day: "Quarta", meta: "2h" },
+      { date: "23/09", day: "Quinta", meta: "2h" }, { date: "24/09", day: "Sexta", meta: "2h" },
+      { date: "27/09", day: "Segunda", meta: "2h" }, { date: "28/09", day: "Terça", meta: "2h" },
+      { date: "29/09", day: "Quarta", meta: "2h" }, { date: "30/09", day: "Quinta", meta: "2h" }
+    ]
+  },
+  {
+    id: "out-2027", label: "Outubro 2027", title: "OUTUBRO 2027", target: "50h",
+    rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+    days: [
+      { date: "01/10", day: "Sexta", meta: "2h30" }, { date: "04/10", day: "Segunda", meta: "2h30" },
+      { date: "05/10", day: "Terça", meta: "2h" }, { date: "06/10", day: "Quarta", meta: "2h30" },
+      { date: "07/10", day: "Quinta", meta: "2h30" }, { date: "08/10", day: "Sexta", meta: "2h30" },
+      { date: "11/10", day: "Segunda", meta: "2h30" }, { date: "12/10", day: "Terça", meta: "2h" },
+      { date: "13/10", day: "Quarta", meta: "2h30" }, { date: "14/10", day: "Quinta", meta: "2h30" },
+      { date: "15/10", day: "Sexta", meta: "2h30" }, { date: "18/10", day: "Segunda", meta: "2h30" },
+      { date: "19/10", day: "Terça", meta: "2h" }, { date: "20/10", day: "Quarta", meta: "2h30" },
+      { date: "21/10", day: "Quinta", meta: "2h30" }, { date: "22/10", day: "Sexta", meta: "2h30" },
+      { date: "25/10", day: "Segunda", meta: "2h30" }, { date: "26/10", day: "Terça", meta: "2h" },
+      { date: "27/10", day: "Quarta", meta: "2h30" }, { date: "28/10", day: "Quinta", meta: "2h30" },
+      { date: "29/10", day: "Sexta", meta: "2h" }
+    ]
+  },
+  {
+    id: "nov-2027", label: "Novembro 2027", title: "NOVEMBRO 2027", target: "50h",
+    rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+    days: [
+      { date: "01/11", day: "Segunda", meta: "2h30" }, { date: "02/11", day: "Terça", meta: "2h" },
+      { date: "03/11", day: "Quarta", meta: "2h30" }, { date: "04/11", day: "Quinta", meta: "2h30" },
+      { date: "05/11", day: "Sexta", meta: "2h30" }, { date: "08/11", day: "Segunda", meta: "2h30" },
+      { date: "09/11", day: "Terça", meta: "2h" }, { date: "10/11", day: "Quarta", meta: "2h30" },
+      { date: "11/11", day: "Quinta", meta: "2h30" }, { date: "12/11", day: "Sexta", meta: "2h30" },
+      { date: "15/11", day: "Segunda", meta: "2h30" }, { date: "16/11", day: "Terça", meta: "2h" },
+      { date: "17/11", day: "Quarta", meta: "2h30" }, { date: "18/11", day: "Quinta", meta: "2h30" },
+      { date: "19/11", day: "Sexta", meta: "2h30" }, { date: "22/11", day: "Segunda", meta: "2h" },
+      { date: "23/11", day: "Terça", meta: "2h" }, { date: "24/11", day: "Quarta", meta: "2h" },
+      { date: "25/11", day: "Quinta", meta: "2h" }, { date: "26/11", day: "Sexta", meta: "2h" },
+      { date: "29/11", day: "Segunda", meta: "2h" }, { date: "30/11", day: "Terça", meta: "2h" }
+    ]
+  },
+  {
+    id: "dez-2027", label: "Dezembro 2027", title: "DEZEMBRO 2027", target: "50h",
+    rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+    days: [
+      { date: "01/12", day: "Quarta", meta: "2h30" }, { date: "02/12", day: "Quinta", meta: "2h30" },
+      { date: "03/12", day: "Sexta", meta: "2h30" }, { date: "06/12", day: "Segunda", meta: "2h30" },
+      { date: "07/12", day: "Terça", meta: "2h" }, { date: "08/12", day: "Quarta", meta: "2h30" },
+      { date: "09/12", day: "Quinta", meta: "2h30" }, { date: "10/12", day: "Sexta", meta: "2h30" },
+      { date: "13/12", day: "Segunda", meta: "2h30" }, { date: "14/12", day: "Terça", meta: "2h" },
+      { date: "15/12", day: "Quarta", meta: "2h" }, { date: "16/12", day: "Quinta", meta: "2h" },
+      { date: "17/12", day: "Sexta", meta: "2h" }, { date: "20/12", day: "Segunda", meta: "2h" },
+      { date: "21/12", day: "Terça", meta: "2h" }, { date: "22/12", day: "Quarta", meta: "2h" },
+      { date: "23/12", day: "Quinta", meta: "2h" }, { date: "24/12", day: "Sexta", meta: "2h" },
+      { date: "27/12", day: "Segunda", meta: "2h" }, { date: "28/12", day: "Terça", meta: "2h" },
+      { date: "29/12", day: "Quarta", meta: "2h" }, { date: "30/12", day: "Quinta", meta: "2h" },
+      { date: "31/12", day: "Sexta", meta: "2h" }
+    ]
   }
 ];
 
@@ -71,58 +332,44 @@ function parseHours(str) {
   return h + (m / 60);
 }
 
-// Busca o Texto Diário filtrando exatamente pela estrutura da WOL (es26)
+// Leitura direta do Texto Diário na WOL
 async function fetchDailyText() {
   const quoteTitle = document.getElementById('quoteTitle');
   const quoteText = document.getElementById('dailyQuote');
   const quoteComment = document.getElementById('dailyComment');
   const toggleBtn = document.getElementById('toggleCommentBtn');
 
-  const hoje = new Date();
-  const ano = hoje.getFullYear();
-  const mes = hoje.getMonth() + 1;
-  const dia = hoje.getDate();
-
-  // URL dinâmica da WOL para o dia do sistema
-  const urlWOL = `https://wol.jw.org/pt/wol/h/r5/lp-t/${ano}/${mes}/${dia}`;
-  const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(urlWOL)}`;
+  const targetUrl = 'https://wol.jw.org/pt/wol/d/r5/lp-t/1102026207';
+  const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
 
   try {
     const response = await fetch(proxyUrl);
     const data = await response.json();
 
-    if (data && data.contents) {
+    if (data.contents) {
       const parser = new DOMParser();
       const doc = parser.parseFromString(data.contents, 'text/html');
 
-      // Seleciona o bloco específico do dia atual na WOL
-      const grupoHoje = doc.querySelector('.todayItems .singleGroup') || doc.querySelector('.tabContent .singleGroup');
+      const headerEl = doc.querySelector('header h2') || doc.querySelector('h2');
+      const textoEl = doc.querySelector('.themeScrp') || doc.querySelector('.pGroup .p1');
+      const comentarioEl = doc.querySelector('.sb') || doc.querySelector('.pGroup .p2');
 
-      if (grupoHoje) {
-        const tituloEl = grupoHoje.querySelector('.header h2') || grupoHoje.querySelector('h2');
-        const textoEl = grupoHoje.querySelector('.themeScrp');
-        const comentarioEl = grupoHoje.querySelector('.sb');
+      if (headerEl) quoteTitle.textContent = `TEXTO DIÁRIO — ${headerEl.textContent.trim().toUpperCase()}`;
+      if (textoEl) quoteText.innerHTML = textoEl.innerHTML;
 
-        if (textoEl) {
-          if (tituloEl) quoteTitle.textContent = `TEXTO DIÁRIO — ${tituloEl.textContent.trim().toUpperCase()}`;
-          quoteText.innerHTML = textoEl.innerHTML;
-
-          if (comentarioEl) {
-            quoteComment.innerHTML = comentarioEl.innerHTML;
-            toggleBtn.style.display = 'inline-block';
-          }
-          return;
-        }
+      if (comentarioEl) {
+        quoteComment.innerHTML = comentarioEl.innerHTML;
+        toggleBtn.style.display = 'inline-block';
       }
+      return;
     }
   } catch (err) {
     console.log("Serviço online indisponível. Carregando dados locais...");
   }
 
-  // Fallback exato com o texto do print (caso ocorra instabilidade na rede)
   quoteTitle.textContent = "TEXTO DIÁRIO — QUARTA-FEIRA, 12 DE AGOSTO";
   quoteText.innerHTML = "Por intermédio dele temos o livramento por resgate, por meio do sangue dele, sim, o perdão das nossas falhas, segundo as riquezas da sua bondade imerecida. — <i>Efé. 1:7.</i>";
-  quoteComment.innerHTML = "Jesus, por ser perfeito, era como Adão antes de pecar. (1 Cor. 15:45) Ao morrer, Jesus pôde fazer expiação pelo pecado de Adão, ou seja, recuperar aquilo que Adão tinha perdido. (Rom. 5:19) Dessa forma, Jesus se tornou 'o último Adão'. Não há necessidade de que outro homem perfeito venha e pague por aquilo que Adão perdeu. Jesus morreu 'de uma vez para sempre'. (Heb. 7:27; 10:12) Qual então é a diferença entre a expiação e o resgate? A expiação é o que Deus fez para que voltássemos a ser amigos dele. O resgate é o preço pago para tornar a expiação possível a favor de humanos pecadores. Esse preço é representado pelo sangue precioso de Jesus, que foi derramado em nosso favor. — Heb. 9:14. w25.02 5 §§ 12-13";
+  quoteComment.innerHTML = "Jesus, por ser perfeito, era como Adão antes de pecar. (1 Cor. 15:45) Ao morrer, Jesus pôde fazer expiação pelo pecado de Adão... — Heb. 9:14. w25.02 5 §§ 12-13";
   toggleBtn.style.display = 'inline-block';
 }
 
@@ -138,11 +385,64 @@ function toggleComment() {
   }
 }
 
+// Botão de Alternar Próxima Cor (Estilo Switch do Celular)
+function nextTheme() {
+  currentThemeIndex = (currentThemeIndex + 1) % colorThemes.length;
+  setTheme(currentThemeIndex);
+}
+
+function setTheme(index, save = true) {
+  currentThemeIndex = index;
+  const theme = colorThemes[index];
+  if (!theme) return;
+
+  document.documentElement.style.setProperty('--bg-cream', theme.bg);
+  document.documentElement.style.setProperty('--navy-base', theme.navy);
+  document.documentElement.style.setProperty('--navy-dark', theme.dark);
+  document.documentElement.style.setProperty('--navy-card', hexToRgba(theme.navy, 0.92));
+  document.documentElement.style.setProperty('--border-color', hexToRgba(theme.bg, 0.25));
+
+  const themeBtn = document.getElementById('themeSwitchBtn');
+  if (themeBtn) {
+    themeBtn.textContent = `🎨 Tema: ${theme.name} (${index + 1}/20)`;
+  }
+
+  document.querySelectorAll('.color-dot').forEach((dot, i) => {
+    dot.classList.toggle('selected', i === index);
+  });
+
+  if (save) {
+    localStorage.setItem('selectedTheme', index);
+  }
+}
+
+function hexToRgba(hex, alpha) {
+  hex = hex.replace('#', '');
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 function initApp() {
+  const sidebarMenu = document.getElementById('sidebarMenu');
   const monthsMenu = document.getElementById('monthsMenu');
   const colorGrid = document.getElementById('colorGrid');
   const monthsContainer = document.getElementById('monthsContainer');
 
+  // Adiciona o Botão Estilo Switch no topo do Menu
+  if (sidebarMenu && !document.getElementById('themeSwitchBtn')) {
+    const switchBtn = document.createElement('button');
+    switchBtn.id = 'themeSwitchBtn';
+    switchBtn.className = 'btn';
+    switchBtn.style.marginBottom = '1rem';
+    switchBtn.style.background = 'rgba(255,255,255,0.1)';
+    switchBtn.onclick = nextTheme;
+    sidebarMenu.insertBefore(switchBtn, sidebarMenu.firstChild);
+  }
+
+  // Gera bolinhas de seleção de cores
+  colorGrid.innerHTML = '';
   colorThemes.forEach((theme, idx) => {
     const dot = document.createElement('div');
     dot.className = `color-dot ${idx === 0 ? 'selected' : ''}`;
@@ -155,8 +455,13 @@ function initApp() {
   const savedTheme = localStorage.getItem('selectedTheme');
   if (savedTheme !== null) {
     setTheme(parseInt(savedTheme), false);
+  } else {
+    setTheme(0, false);
   }
 
+  // Gera todos os meses na interface
+  monthsMenu.innerHTML = '';
+  monthsContainer.innerHTML = '';
   planData.forEach((month, index) => {
     photoStore[month.id] = [];
 
@@ -260,33 +565,6 @@ function initApp() {
   });
 
   fetchDailyText();
-}
-
-function setTheme(index, save = true) {
-  const theme = colorThemes[index];
-  if (!theme) return;
-
-  document.documentElement.style.setProperty('--bg-cream', theme.bg);
-  document.documentElement.style.setProperty('--navy-base', theme.navy);
-  document.documentElement.style.setProperty('--navy-dark', theme.dark);
-  document.documentElement.style.setProperty('--navy-card', hexToRgba(theme.navy, 0.92));
-  document.documentElement.style.setProperty('--border-color', hexToRgba(theme.bg, 0.25));
-
-  document.querySelectorAll('.color-dot').forEach((dot, i) => {
-    dot.classList.toggle('selected', i === index);
-  });
-
-  if (save) {
-    localStorage.setItem('selectedTheme', index);
-  }
-}
-
-function hexToRgba(hex, alpha) {
-  hex = hex.replace('#', '');
-  const r = parseInt(hex.substring(0, 2), 16);
-  const g = parseInt(hex.substring(2, 4), 16);
-  const b = parseInt(hex.substring(4, 6), 16);
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
 const menuToggle = document.getElementById('menuToggle');
