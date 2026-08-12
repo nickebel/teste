@@ -148,7 +148,6 @@
       padding: 5rem 1.25rem 2rem 1.25rem;
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
       overflow-y: auto;
       box-shadow: -5px 0 25px rgba(0,0,0,0.3);
       transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -156,6 +155,14 @@
     }
 
     .sidebar-menu.active { right: 0; }
+
+    /* Lista Vertical de Meses */
+    #monthsMenu {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      width: 100%;
+    }
 
     .menu-overlay {
       position: fixed;
@@ -187,6 +194,8 @@
       text-align: left;
       transition: all 0.2s ease;
       color: var(--bg-cream);
+      width: 100%;
+      display: block;
     }
 
     .menu-btn.active {
@@ -195,22 +204,23 @@
       font-weight: 600;
     }
 
-    /* Seletor de Cores */
+    /* Seletor de Cores Arrumado */
     .color-section-title {
       font-size: 0.8rem;
       font-weight: 600;
       text-transform: uppercase;
-      margin: 1.5rem 0 0.5rem 0;
+      margin: 1.5rem 0 0.75rem 0;
       opacity: 0.8;
       border-top: 1px dashed var(--border-color);
-      padding-top: 1rem;
+      padding-top: 1.25rem;
     }
 
     .color-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 8px;
+      gap: 10px;
       margin-bottom: 1rem;
+      width: 100%;
     }
 
     .color-dot {
@@ -220,6 +230,7 @@
       border: 2px solid transparent;
       cursor: pointer;
       transition: transform 0.2s ease, border-color 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
 
     .color-dot:hover {
@@ -229,7 +240,7 @@
     .color-dot.selected {
       border-color: #FFF;
       transform: scale(1.1);
-      box-shadow: 0 0 8px rgba(255,255,255,0.6);
+      box-shadow: 0 0 10px rgba(255,255,255,0.7);
     }
 
     header, .quote-box, main {
@@ -923,7 +934,7 @@
       return h + (m / 60);
     }
 
-    // Busca o Texto Diário via Proxy AllOrigins (Compatível com GitHub Pages)
+    // Busca o Texto Diário com fallback duplo (Mais rápido e estável)
     async function fetchDailyText() {
       const quoteTitle = document.getElementById('quoteTitle');
       const quoteText = document.getElementById('dailyQuote');
@@ -936,37 +947,52 @@
       const dia = hoje.getDate();
 
       const targetUrl = `https://wol.jw.org/pt/wol/h/r5/lp-t/${ano}/${mes}/${dia}`;
-      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+      
+      const proxies = [
+        `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
+        `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`
+      ];
 
-      try {
-        const response = await fetch(proxyUrl);
-        const data = await response.json();
+      for (let url of proxies) {
+        try {
+          const response = await fetch(url);
+          if (!response.ok) continue;
 
-        if (data.contents) {
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(data.contents, 'text/html');
-
-          const textoEl = doc.querySelector('.themeScrp');
-          const comentarioEl = doc.querySelector('.sb');
-          const headerEl = doc.querySelector('.todayItems .singleGroup .header h2');
-
-          if (textoEl) {
-            if (headerEl) {
-              quoteTitle.textContent = `TEXTO DIÁRIO — ${headerEl.textContent.trim().toUpperCase()}`;
-            }
-            quoteText.innerHTML = textoEl.innerHTML;
-            
-            if (comentarioEl) {
-              quoteComment.innerHTML = comentarioEl.innerHTML;
-              toggleBtn.style.display = 'inline-block';
-            }
+          let htmlText = '';
+          if (url.includes('allorigins')) {
+            const data = await response.json();
+            htmlText = data.contents;
           } else {
-            quoteText.textContent = "Não foi possível extrair o texto de hoje.";
+            htmlText = await response.text();
           }
+
+          if (htmlText) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlText, 'text/html');
+
+            const textoEl = doc.querySelector('.themeScrp');
+            const comentarioEl = doc.querySelector('.sb');
+            const headerEl = doc.querySelector('.todayItems .singleGroup .header h2, .header h2');
+
+            if (textoEl) {
+              if (headerEl) {
+                quoteTitle.textContent = `TEXTO DIÁRIO — ${headerEl.textContent.trim().toUpperCase()}`;
+              }
+              quoteText.innerHTML = textoEl.innerHTML;
+              
+              if (comentarioEl) {
+                quoteComment.innerHTML = comentarioEl.innerHTML;
+                toggleBtn.style.display = 'inline-block';
+              }
+              return;
+            }
+          }
+        } catch (e) {
+          console.log("Tentando próximo proxy...");
         }
-      } catch (err) {
-        quoteText.textContent = "Erro ao carregar o texto diário automático.";
       }
+
+      quoteText.textContent = "Não foi possível carregar o texto diário no momento.";
     }
 
     function toggleComment() {
@@ -986,7 +1012,7 @@
       const colorGrid = document.getElementById('colorGrid');
       const monthsContainer = document.getElementById('monthsContainer');
 
-      // Configura botões de seleção de cores
+      // Configura botões de seleção de cores em grade alinhada
       colorThemes.forEach((theme, idx) => {
         const dot = document.createElement('div');
         dot.className = `color-dot ${idx === 0 ? 'selected' : ''}`;
