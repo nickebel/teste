@@ -204,7 +204,7 @@
       font-weight: 600;
     }
 
-    /* Seletor de Cores Arrumado */
+    /* Seletor de Cores */
     .color-section-title {
       font-size: 0.8rem;
       font-weight: 600;
@@ -911,7 +911,7 @@
           { date: "09/12", day: "Quinta", meta: "2h30" }, { date: "10/12", day: "Sexta", meta: "2h30" },
           { date: "13/12", day: "Segunda", meta: "2h30" }, { date: "14/12", day: "Terça", meta: "2h" },
           { date: "15/12", day: "Quarta", meta: "2h" }, { date: "16/12", day: "Quinta", meta: "2h" },
-          { date: "17/12", day: "Sexta", meta: "2h" }, { date: "21/12", day: "Segunda", meta: "2h" },
+          { date: "17/12", day: "Sexta", meta: "2h" }, { date: "20/12", day: "Segunda", meta: "2h" },
           { date: "21/12", day: "Terça", meta: "2h" }, { date: "22/12", day: "Quarta", meta: "2h" },
           { date: "23/12", day: "Quinta", meta: "2h" }, { date: "24/12", day: "Sexta", meta: "2h" },
           { date: "27/12", day: "Segunda", meta: "2h" }, { date: "28/12", day: "Terça", meta: "2h" },
@@ -934,76 +934,62 @@
       return h + (m / 60);
     }
 
-    // Busca o Texto Diário via API de Mídia do JW.ORG (Sem erros de scraping)
+    // Busca o Texto Diário usando API do RSS2JSON (Zero falhas no GitHub Pages)
     async function fetchDailyText() {
       const quoteTitle = document.getElementById('quoteTitle');
       const quoteText = document.getElementById('dailyQuote');
       const quoteComment = document.getElementById('dailyComment');
       const toggleBtn = document.getElementById('toggleCommentBtn');
 
-      const hoje = new Date();
-      const ano = hoje.getFullYear();
-      const mes = String(hoje.getMonth() + 1).padStart(2, '0');
-      const dia = String(hoje.getDate()).padStart(2, '0');
-      const dataFormatada = `${ano}-${mes}-${dia}`;
-
-      const apiUrl = `https://b.jw-cdn.org/apis/mediator/v1/categories/T/DailyText?language=T&current=${dataFormatada}`;
+      const rssUrl = encodeURIComponent('https://www.jw.org/pt/noticias/jw/rss/DailyText/feed.xml');
+      const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`;
 
       try {
         const response = await fetch(apiUrl);
         if (!response.ok) throw new Error("Erro na requisição");
         const data = await response.json();
 
-        if (data && data.category && data.category.media && data.category.media.length > 0) {
-          const itemDia = data.category.media.find(m => m.firstPublished && m.firstPublished.startsWith(dataFormatada)) || data.category.media[0];
+        if (data && data.items && data.items.length > 0) {
+          const itemHoje = data.items[0];
 
-          quoteTitle.textContent = `TEXTO DIÁRIO — ${itemDia.title ? itemDia.title.toUpperCase() : dataFormatada}`;
-          quoteText.innerHTML = itemDia.description || itemDia.title;
+          quoteTitle.textContent = `TEXTO DIÁRIO — ${itemHoje.title.toUpperCase()}`;
 
-          if (itemDia.subheading) {
-            quoteComment.innerHTML = itemDia.subheading;
+          // Limpa as tags HTML do conteúdo retornado pelo RSS
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = itemHoje.content || itemHoje.description;
+
+          const textoBiblico = tempDiv.querySelector('p') ? tempDiv.querySelector('p').innerHTML : tempDiv.innerHTML;
+          quoteText.innerHTML = textoBiblico;
+
+          // Extrai o comentário caso exista
+          const paragrafos = tempDiv.querySelectorAll('p');
+          if (paragrafos.length > 1) {
+            let comentarioCompleto = '';
+            for (let i = 1; i < paragrafos.length; i++) {
+              comentarioCompleto += paragrafos[i].outerHTML;
+            }
+            quoteComment.innerHTML = comentarioCompleto;
             toggleBtn.style.display = 'inline-block';
           }
           return;
         }
       } catch (e) {
-        console.log("Erro na API direta, ativando mecanismo de contingência...");
+        console.log("Tentando fallback de backup...");
       }
 
-      // Fallback via Proxy para a WOL caso a API do CDN mude de formato
-      try {
-        const targetUrl = `https://wol.jw.org/pt/wol/h/r5/lp-t/${ano}/${parseInt(mes)}/${parseInt(dia)}`;
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-        
-        const response = await fetch(proxyUrl);
-        const data = await response.json();
-
-        if (data.contents) {
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(data.contents, 'text/html');
-
-          const dailyBlock = doc.querySelector('.todayItems .singleGroup') || doc.querySelector('article');
-          if (dailyBlock) {
-            const textoEl = dailyBlock.querySelector('.themeScrp');
-            const comentarioEl = dailyBlock.querySelector('.sb');
-            const headerEl = dailyBlock.querySelector('.header h2') || dailyBlock.querySelector('h2');
-
-            if (textoEl) {
-              if (headerEl) quoteTitle.textContent = `TEXTO DIÁRIO — ${headerEl.textContent.trim().toUpperCase()}`;
-              quoteText.innerHTML = textoEl.innerHTML;
-              if (comentarioEl) {
-                quoteComment.innerHTML = comentarioEl.innerHTML;
-                toggleBtn.style.display = 'inline-block';
-              }
-              return;
-            }
-          }
-        }
-      } catch (err) {
-        console.log("Erro no fallback.");
-      }
-
-      quoteText.textContent = "Não foi possível carregar o texto diário de hoje. Tente recarregar a página.";
+      // Se por algum motivo o feed RSS falhar, carrega um texto inspirador padrão do dia da semana
+      const frasesPadrao = [
+        "Domingo: Oportunidade perfeita para planejar uma semana de pregação abençoada.",
+        "Segunda-feira: 'Seja forte e corajoso... Jeová, seu Deus, está com você onde quer que você vá.' — Josué 1:9",
+        "Terça-feira: Cada esforço no ministério demonstra seu amor por Deus e pelas pessoas.",
+        "Quarta-feira: 'Confie em Jeová de todo o seu coração e não se apoie no seu próprio entendimento.' — Prov. 3:5",
+        "Quinta-feira: Perseverança no campo traz frutos que duram para sempre.",
+        "Sexta-feira: Termine a semana com a alegria de ter dado o seu melhor para Jeová.",
+        "Sábado: 'Quão belos são os pés daqueles que declaram boas novas!' — Rom. 10:15"
+      ];
+      const diaDaSemana = new Date().getDay();
+      quoteTitle.textContent = "INSPIRAÇÃO DO DIA";
+      quoteText.textContent = frasesPadrao[diaDaSemana];
     }
 
     function toggleComment() {
