@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Planejamento 50 Horas de Campo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      /* Paleta Padrão: 1. Azul Marinho Clássico */
+      --bg-cream: #EEEBDA;
+      --navy-base: #282B4A;
+      --navy-dark: #121426;
+      --navy-card: rgba(40, 43, 74, 0.92);
+      --border-color: rgba(238, 235, 218, 0.2);
+      --hover-color: rgba(238, 235, 218, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      color: var(--bg-cream);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-cream);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+      position: relative;
+      overflow-x: hidden;
+      transition: background-color 0.4s ease;
+    }
+
+    /* Container Lâmpada de Lava */
+    .lava-lamp {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      filter: url("#goo") blur(8px);
+      opacity: 0.75;
+    }
+
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      background: var(--navy-base);
+      bottom: -350px;
+      will-change: transform;
+      transition: background 0.4s ease;
+    }
+
+    .blob-1 {
+      width: 220px;
+      height: 220px;
+      left: 20%;
+      animation: floatLava1 22s infinite ease-in-out;
+    }
+
+    .blob-2 {
+      width: 260px;
+      height: 260px;
+      left: 35%;
+      animation: floatLava2 22s infinite ease-in-out;
+      animation-delay: -3s;
+    }
+
+    .blob-3 {
+      width: 180px;
+      height: 180px;
+      left: 70%;
+      animation: floatLava1 18s infinite ease-in-out;
+      animation-delay: -9s;
+    }
+
+    .blob-4 {
+      width: 240px;
+      height: 240px;
+      left: 50%;
+      animation: floatLava2 25s infinite ease-in-out;
+      animation-delay: -14s;
+    }
+
+    @keyframes floatLava1 {
+      0% { transform: translateY(0) scale(1, 1); }
+      50% { transform: translateY(-80vh) scale(1.2, 0.85); }
+      100% { transform: translateY(-160vh) scale(0.9, 1.1); }
+    }
+
+    @keyframes floatLava2 {
+      0% { transform: translateY(0) translateX(0) scale(1, 1); }
+      45% { transform: translateY(-75vh) translateX(-120px) scale(1.3, 1.1); }
+      55% { transform: translateY(-85vh) translateX(-80px) scale(1.1, 1.3); }
+      100% { transform: translateY(-160vh) translateX(40px) scale(0.95, 1); }
+    }
+
+    /* Botão Hambúrguer */
+    .menu-toggle {
+      position: fixed;
+      top: 1.25rem;
+      right: 1.25rem;
+      z-index: 100;
+      background: var(--navy-base);
+      border: 1px solid var(--border-color);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .menu-toggle span {
+      width: 18px;
+      height: 2px;
+      background-color: var(--bg-cream);
+      border-radius: 2px;
+    }
+
+    /* Sidebar Responsiva */
+    .sidebar-menu {
+      position: fixed;
+      top: 0;
+      right: -100%;
+      width: 320px;
+      max-width: 85vw;
+      height: 100vh;
+      background: var(--navy-card);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 90;
+      padding: 5rem 1.25rem 2rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      overflow-y: auto;
+      box-shadow: -5px 0 25px rgba(0,0,0,0.3);
+      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border-left: 1px solid var(--border-color);
+    }
+
+    .sidebar-menu.active { right: 0; }
+
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      z-index: 80;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .menu-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .menu-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      padding: 0.85rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      text-align: left;
+      transition: all 0.2s ease;
+      color: var(--bg-cream);
+    }
+
+    .menu-btn.active {
+      background: var(--bg-cream);
+      color: var(--navy-dark);
+      font-weight: 600;
+    }
+
+    /* Seletor de Cores */
+    .color-section-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin: 1.5rem 0 0.5rem 0;
+      opacity: 0.8;
+      border-top: 1px dashed var(--border-color);
+      padding-top: 1rem;
+    }
+
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .color-dot {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .color-dot:hover {
+      transform: scale(1.15);
+    }
+
+    .color-dot.selected {
+      border-color: #FFF;
+      transform: scale(1.1);
+      box-shadow: 0 0 8px rgba(255,255,255,0.6);
+    }
+
+    header, .quote-box, main {
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      text-align: center;
+      max-width: 800px;
+      margin-bottom: 1.5rem;
+      width: 100%;
+    }
+
+    .hero-svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 0.6rem;
+    }
+
+    .hero-svg path, .hero-svg rect {
+      stroke: var(--navy-base);
+      transition: stroke 0.4s ease;
+    }
+
+    h1 {
+      font-weight: 600;
+      font-size: clamp(1.4rem, 4vw, 1.8rem);
+      text-transform: uppercase;
+      margin-bottom: 0.3rem;
+      color: var(--navy-base);
+      transition: color 0.4s ease;
+    }
+
+    p.subtitle {
+      font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+      color: var(--navy-base);
+      transition: color 0.4s ease;
+    }
+
+    .quote-box {
+      width: 100%;
+      max-width: 800px;
+      background: var(--navy-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .quote-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      opacity: 0.85;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .quote-text {
+      font-size: 0.95rem;
+      font-style: italic;
+      font-weight: 400;
+      line-height: 1.4;
+    }
+
+    .quote-comment {
+      font-size: 0.85rem;
+      font-style: normal;
+      font-weight: 300;
+      margin-top: 0.8rem;
+      opacity: 0.9;
+      display: none;
+      text-align: justify;
+      line-height: 1.4;
+      background: rgba(0,0,0,0.15);
+      padding: 0.75rem;
+      border-radius: 6px;
+    }
+
+    .toggle-comment-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      font-size: 0.75rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 0.6rem;
+      transition: background 0.2s;
+    }
+
+    .toggle-comment-btn:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    main {
+      width: 100%;
+      max-width: 800px;
+      background: var(--navy-card);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .month-header {
+      margin-bottom: 1.25rem;
+    }
+
+    .month-title h2 {
+      font-weight: 500;
+      font-size: clamp(1.2rem, 3.5vw, 1.4rem);
+    }
+
+    .progress-box {
+      margin-bottom: 1.25rem;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 8px;
+      background: rgba(238, 235, 218, 0.15);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--bg-cream);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      margin-bottom: 1.25rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+      min-width: 300px;
+    }
+
+    th, td {
+      padding: 0.75rem 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+    }
+
+    .checkbox-custom {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      border: 1.5px solid var(--bg-cream);
+      border-radius: 4px;
+      cursor: pointer;
+      display: inline-grid;
+      place-content: center;
+      background: transparent;
+    }
+
+    .checkbox-custom::before {
+      content: "";
+      width: 12px;
+      height: 12px;
+      transform: scale(0);
+      transition: 120ms transform ease-in-out;
+      background-color: var(--bg-cream);
+      border-radius: 2px;
+    }
+
+    .checkbox-custom:checked::before { transform: scale(1); }
+
+    .rule-note {
+      font-size: 0.8rem;
+      opacity: 0.8;
+      font-style: italic;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border-color);
+    }
+
+    .report-box {
+      margin-top: 1.25rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      display: none;
+    }
+
+    .report-box.active { display: block; }
+
+    .report-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .report-text {
+      font-size: 0.85rem;
+      background: var(--navy-dark);
+      padding: 0.75rem;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+      margin-bottom: 0.75rem;
+      line-height: 1.4;
+    }
+
+    .photo-section {
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .photo-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .photo-upload-btn {
+      background: transparent;
+      border: 1px dashed var(--bg-cream);
+      padding: 0.4rem 0.8rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .photo-card {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .photo-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .photo-delete {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: var(--navy-dark);
+      border: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn {
+      background: transparent;
+      border: 1px solid var(--bg-cream);
+      padding: 0.6rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      width: 100%;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .btn:active {
+      background: var(--bg-cream);
+      color: var(--navy-dark);
+    }
+
+    .month-content { display: none; }
+    .month-content.active { display: block; }
+  </style>
+</head>
+<body>
+
+  <!-- Filtro Lâmpada de Lava -->
+  <svg style="position: absolute; width: 0; height: 0;">
+    <defs>
+      <filter id="goo">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="20" result="blur" />
+        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -8" result="goo" />
+      </filter>
+    </defs>
+  </svg>
+
+  <div class="lava-lamp">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
+  </div>
+
+  <button class="menu-toggle" id="menuToggle" aria-label="Abrir Menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <div class="menu-overlay" id="menuOverlay"></div>
+  
+  <nav class="sidebar-menu" id="sidebarMenu">
+    <div id="monthsMenu"></div>
+    <div class="color-section-title">Temas de Cores (20)</div>
+    <div class="color-grid" id="colorGrid"></div>
+  </nav>
+
+  <header>
+    <svg class="hero-svg" viewBox="0 0 24 24" fill="none" stroke="#282B4A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+    </svg>
+    <h1>50 Horas de Campo</h1>
+    <p class="subtitle">Acompanhamento e Relatório Mensal</p>
+  </header>
+
+  <div class="quote-box">
+    <div class="quote-title" id="quoteTitle">TEXTO DIÁRIO — JW.ORG</div>
+    <div class="quote-text" id="dailyQuote">Buscando o texto diário de hoje...</div>
+    <div class="quote-comment" id="dailyComment"></div>
+    <button class="toggle-comment-btn" id="toggleCommentBtn" style="display:none;" onclick="toggleComment()">Ler Comentário</button>
+  </div>
+
+  <main>
+    <div id="monthsContainer"></div>
+  </main>
+
+  <script>
+    // 20 Paletas de Cores
+    const colorThemes = [
+      { name: "Azul Marinho Clássico", bg: "#EEEBDA", navy: "#282B4A", dark: "#121426" },
+      { name: "Verde Botânico", bg: "#E8F0E6", navy: "#2D5A27", dark: "#132810" },
+      { name: "Roxo Real", bg: "#F0E6F5", navy: "#4A285A", dark: "#1F0E28" },
+      { name: "Terracota Quente", bg: "#F7EBE6", navy: "#6B321D", dark: "#301308" },
+      { name: "Cinza Urbano", bg: "#EAEAEA", navy: "#333A42", dark: "#1A1D21" },
+      { name: "Vinho Elegante", bg: "#F5E6E8", navy: "#5A1E28", dark: "#280A0F" },
+      { name: "Azul Petróleo", bg: "#E3F2F5", navy: "#1D5363", dark: "#0A252E" },
+      { name: "Ouro Rosa", bg: "#FBECEF", navy: "#6E3B47", dark: "#36181F" },
+      { name: "Verde Oliva", bg: "#EFEFE0", navy: "#4A4E28", dark: "#21230F" },
+      { name: "Cobre Profundo", bg: "#F7ECE1", navy: "#683D1B", dark: "#2E1908" },
+      { name: "Azul Noturno", bg: "#E1E8F0", navy: "#1B3B6F", dark: "#0A1931" },
+      { name: "Sálvia Suave", bg: "#E4ECE7", navy: "#365345", dark: "#16251E" },
+      { name: "Ametista", bg: "#EFEAF8", navy: "#3B2863", dark: "#170D2C" },
+      { name: "Areia Dourada", bg: "#F5EFE0", navy: "#5A4828", dark: "#281F0E" },
+      { name: "Cereja Escuro", bg: "#F7E6EB", navy: "#6B1D33", dark: "#300813" },
+      { name: "Menta Fresco", bg: "#E2F3EE", navy: "#1F5243", dark: "#0B261E" },
+      { name: "Chocolate", bg: "#F2EBE5", navy: "#4A3222", dark: "#21140A" },
+      { name: "Azul Celeste", bg: "#E5F0F8", navy: "#244B6E", dark: "#0C2033" },
+      { name: "Grafite Escuro", bg: "#E0E0E0", navy: "#22252A", dark: "#0E0F12" },
+      { name: "Açafrão Pôr do Sol", bg: "#FAF0E6", navy: "#6B431D", dark: "#301A08" }
+    ];
+
+    const planData = [
+      {
+        id: "ago-2026", label: "Agosto 2026", title: "AGOSTO 2026", target: "50h",
+        rule: "Observação: o plano de agosto foi mantido como combinado. Se você adiantar horas em outros dias, pode reduzir a carga do dia 31.",
+        days: [
+          { date: "11/08", day: "Terça", meta: "2h" }, { date: "12/08", day: "Quarta", meta: "2h30" },
+          { date: "13/08", day: "Quinta", meta: "2h30" }, { date: "14/08", day: "Sexta", meta: "2h30" },
+          { date: "15/08", day: "Sábado", meta: "3h" }, { date: "17/08", day: "Segunda", meta: "2h30" },
+          { date: "18/08", day: "Terça", meta: "2h" }, { date: "19/08", day: "Quarta", meta: "2h30" },
+          { date: "20/08", day: "Quinta", meta: "2h30" }, { date: "21/08", day: "Sexta", meta: "2h30" },
+          { date: "22/08", day: "Sábado", meta: "3h" }, { date: "24/08", day: "Segunda", meta: "2h30" },
+          { date: "25/08", day: "Terça", meta: "2h" }, { date: "26/08", day: "Quarta", meta: "2h30" },
+          { date: "27/08", day: "Quinta", meta: "2h30" }, { date: "28/08", day: "Sexta", meta: "2h30" },
+          { date: "29/08", day: "Sábado", meta: "3h" }, { date: "30/08", day: "Domingo", meta: "2h" },
+          { date: "31/08", day: "Segunda", meta: "5h30" }
+        ]
+      },
+      {
+        id: "set-2026", label: "Setembro 2026", title: "SETEMBRO 2026", target: "50h",
+        rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+        days: [
+          { date: "01/09", day: "Terça", meta: "2h" }, { date: "02/09", day: "Quarta", meta: "2h30" },
+          { date: "03/09", day: "Quinta", meta: "2h30" }, { date: "04/09", day: "Sexta", meta: "2h30" },
+          { date: "07/09", day: "Segunda", meta: "2h30" }, { date: "08/09", day: "Terça", meta: "2h" },
+          { date: "09/09", day: "Quarta", meta: "2h30" }, { date: "10/09", day: "Quinta", meta: "2h30" },
+          { date: "11/09", day: "Sexta", meta: "2h30" }, { date: "14/09", day: "Segunda", meta: "2h30" },
+          { date: "15/09", day: "Terça", meta: "2h" }, { date: "16/09", day: "Quarta", meta: "2h30" },
+          { date: "17/09", day: "Quinta", meta: "2h30" }, { date: "18/09", day: "Sexta", meta: "2h30" },
+          { date: "21/09", day: "Segunda", meta: "2h30" }, { date: "22/09", day: "Terça", meta: "2h" },
+          { date: "23/09", day: "Quarta", meta: "2h" }, { date: "24/09", day: "Quinta", meta: "2h" },
+          { date: "25/09", day: "Sexta", meta: "2h" }, { date: "28/09", day: "Segunda", meta: "2h" },
+          { date: "29/09", day: "Terça", meta: "2h" }, { date: "30/09", day: "Quarta", meta: "2h" }
+        ]
+      },
+      {
+        id: "out-2026", label: "Outubro 2026", title: "OUTUBRO 2026", target: "50h",
+        rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+        days: [
+          { date: "01/10", day: "Quinta", meta: "2h30" }, { date: "02/10", day: "Sexta", meta: "2h30" },
+          { date: "05/10", day: "Segunda", meta: "2h30" }, { date: "06/10", day: "Terça", meta: "2h" },
+          { date: "07/10", day: "Quarta", meta: "2h30" }, { date: "08/10", day: "Quinta", meta: "2h30" },
+          { date: "09/10", day: "Sexta", meta: "2h30" }, { date: "12/10", day: "Segunda", meta: "2h30" },
+          { date: "13/10", day: "Terça", meta: "2h" }, { date: "14/10", day: "Quarta", meta: "2h30" },
+          { date: "15/10", day: "Quinta", meta: "2h30" }, { date: "16/10", day: "Sexta", meta: "2h30" },
+          { date: "19/10", day: "Segunda", meta: "2h30" }, { date: "20/10", day: "Terça", meta: "2h" },
+          { date: "21/10", day: "Quarta", meta: "2h30" }, { date: "22/10", day: "Quinta", meta: "2h" },
+          { date: "23/10", day: "Sexta", meta: "2h" }, { date: "26/10", day: "Segunda", meta: "2h" },
+          { date: "27/10", day: "Terça", meta: "2h" }, { date: "28/10", day: "Quarta", meta: "2h" },
+          { date: "29/10", day: "Quinta", meta: "2h" }, { date: "30/10", day: "Sexta", meta: "2h" }
+        ]
+      },
+      {
+        id: "nov-2026", label: "Novembro 2026", title: "NOVEMBRO 2026", target: "50h",
+        rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+        days: [
+          { date: "02/11", day: "Segunda", meta: "2h30" }, { date: "03/11", day: "Terça", meta: "2h" },
+          { date: "04/11", day: "Quarta", meta: "2h30" }, { date: "05/11", day: "Quinta", meta: "2h30" },
+          { date: "06/11", day: "Sexta", meta: "2h30" }, { date: "09/11", day: "Segunda", meta: "2h30" },
+          { date: "10/11", day: "Terça", meta: "2h" }, { date: "11/11", day: "Quarta", meta: "2h30" },
+          { date: "12/11", day: "Quinta", meta: "2h30" }, { date: "13/11", day: "Sexta", meta: "2h30" },
+          { date: "16/11", day: "Segunda", meta: "2h30" }, { date: "17/11", day: "Terça", meta: "2h" },
+          { date: "18/11", day: "Quarta", meta: "2h30" }, { date: "19/11", day: "Quinta", meta: "2h30" },
+          { date: "20/11", day: "Sexta", meta: "2h30" }, { date: "23/11", day: "Segunda", meta: "2h30" },
+          { date: "24/11", day: "Terça", meta: "2h" }, { date: "25/11", day: "Quarta", meta: "2h30" },
+          { date: "26/11", day: "Quinta", meta: "2h30" }, { date: "27/11", day: "Sexta", meta: "2h30" },
+          { date: "30/11", day: "Segunda", meta: "2h" }
+        ]
+      },
+      {
+        id: "dez-2026", label: "Dezembro 2026", title: "DEZEMBRO 2026", target: "50h",
+        rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+        days: [
+          { date: "01/12", day: "Terça", meta: "2h" }, { date: "02/12", day: "Quarta", meta: "2h30" },
+          { date: "03/12", day: "Quinta", meta: "2h30" }, { date: "04/12", day: "Sexta", meta: "2h30" },
+          { date: "07/12", day: "Segunda", meta: "2h30" }, { date: "08/12", day: "Terça", meta: "2h" },
+          { date: "09/12", day: "Quarta", meta: "2h30" }, { date: "10/12", day: "Quinta", meta: "2h30" },
+          { date: "11/12", day: "Sexta", meta: "2h30" }, { date: "14/12", day: "Segunda", meta: "2h30" },
+          { date: "15/12", day: "Terça", meta: "2h" }, { date: "16/12", day: "Quarta", meta: "2h" },
+          { date: "17/12", day: "Quinta", meta: "2h" }, { date: "18/12", day: "Sexta", meta: "2h" },
+          { date: "21/12", day: "Segunda", meta: "2h" }, { date: "22/12", day: "Terça", meta: "2h" },
+          { date: "23/12", day: "Quarta", meta: "2h" }, { date: "24/12", day: "Quinta", meta: "2h" },
+          { date: "25/12", day: "Sexta", meta: "2h" }, { date: "28/12", day: "Segunda", meta: "2h" },
+          { date: "29/12", day: "Terça", meta: "2h" }, { date: "30/12", day: "Quarta", meta: "2h" },
+          { date: "31/12", day: "Quinta", meta: "2h" }
+        ]
+      },
+      {
+        id: "jan-2027", label: "Janeiro 2027", title: "JANEIRO 2027", target: "50h",
+        rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+        days: [
+          { date: "01/01", day: "Sexta", meta: "2h30" }, { date: "04/01", day: "Segunda", meta: "2h30" },
+          { date: "05/01", day: "Terça", meta: "2h" }, { date: "06/01", day: "Quarta", meta: "2h30" },
+          { date: "07/01", day: "Quinta", meta: "2h30" }, { date: "08/01", day: "Sexta", meta: "2h30" },
+          { date: "11/01", day: "Segunda", meta: "2h30" }, { date: "12/01", day: "Terça", meta: "2h" },
+          { date: "13/01", day: "Quarta", meta: "2h30" }, { date: "14/01", day: "Quinta", meta: "2h30" },
+          { date: "15/01", day: "Sexta", meta: "2h30" }, { date: "18/01", day: "Segunda", meta: "2h30" },
+          { date: "19/01", day: "Terça", meta: "2h" }, { date: "20/01", day: "Quarta", meta: "2h30" },
+          { date: "21/01", day: "Quinta", meta: "2h30" }, { date: "22/01", day: "Sexta", meta: "2h30" },
+          { date: "25/01", day: "Segunda", meta: "2h30" }, { date: "26/01", day: "Terça", meta: "2h" },
+          { date: "27/01", day: "Quarta", meta: "2h30" }, { date: "28/01", day: "Quinta", meta: "2h30" },
+          { date: "29/01", day: "Sexta", meta: "2h" }
+        ]
+      },
+      {
+        id: "fev-2027", label: "Fevereiro 2027", title: "FEVEREIRO 2027", target: "50h",
+        rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+        days: [
+          { date: "01/02", day: "Segunda", meta: "2h30" }, { date: "02/02", day: "Terça", meta: "2h" },
+          { date: "03/02", day: "Quarta", meta: "2h30" }, { date: "04/02", day: "Quinta", meta: "2h30" },
+          { date: "05/02", day: "Sexta", meta: "2h30" }, { date: "06/02", day: "Sábado", meta: "2h" },
+          { date: "08/02", day: "Segunda", meta: "2h30" }, { date: "09/02", day: "Terça", meta: "2h" },
+          { date: "10/02", day: "Quarta", meta: "2h30" }, { date: "11/02", day: "Quinta", meta: "2h30" },
+          { date: "12/02", day: "Sexta", meta: "2h30" }, { date: "15/02", day: "Segunda", meta: "2h30" },
+          { date: "16/02", day: "Terça", meta: "2h" }, { date: "17/02", day: "Quarta", meta: "2h30" },
+          { date: "18/02", day: "Quinta", meta: "2h30" }, { date: "19/02", day: "Sexta", meta: "2h30" },
+          { date: "22/02", day: "Segunda", meta: "2h30" }, { date: "23/02", day: "Terça", meta: "2h" },
+          { date: "24/02", day: "Quarta", meta: "2h30" }, { date: "25/02", day: "Quinta", meta: "2h30" },
+          { date: "26/02", day: "Sexta", meta: "2h30" }
+        ]
+      },
+      {
+        id: "mar-2027", label: "Março 2027", title: "MARÇO 2027", target: "50h",
+        rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+        days: [
+          { date: "01/03", day: "Segunda", meta: "2h30" }, { date: "02/03", day: "Terça", meta: "2h" },
+          { date: "03/03", day: "Quarta", meta: "2h30" }, { date: "04/03", day: "Quinta", meta: "2h30" },
+          { date: "05/03", day: "Sexta", meta: "2h30" }, { date: "08/03", day: "Segunda", meta: "2h30" },
+          { date: "09/03", day: "Terça", meta: "2h" }, { date: "10/03", day: "Quarta", meta: "2h30" },
+          { date: "11/03", day: "Quinta", meta: "2h30" }, { date: "12/03", day: "Sexta", meta: "2h30" },
+          { date: "15/03", day: "Segunda", meta: "2h" }, { date: "16/03", day: "Terça", meta: "2h" },
+          { date: "17/03", day: "Quarta", meta: "2h" }, { date: "18/03", day: "Quinta", meta: "2h" },
+          { date: "19/03", day: "Sexta", meta: "2h" }, { date: "22/03", day: "Segunda", meta: "2h" },
+          { date: "23/03", day: "Terça", meta: "2h" }, { date: "24/03", day: "Quarta", meta: "2h" },
+          { date: "25/03", day: "Quinta", meta: "2h" }, { date: "26/03", day: "Sexta", meta: "2h" },
+          { date: "29/03", day: "Segunda", meta: "2h" }, { date: "30/03", day: "Terça", meta: "2h" },
+          { date: "31/03", day: "Quarta", meta: "2h" }
+        ]
+      },
+      {
+        id: "abr-2027", label: "Abril 2027", title: "ABRIL 2027", target: "50h",
+        rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+        days: [
+          { date: "01/04", day: "Quinta", meta: "2h30" }, { date: "02/04", day: "Sexta", meta: "2h30" },
+          { date: "05/04", day: "Segunda", meta: "2h30" }, { date: "06/04", day: "Terça", meta: "2h" },
+          { date: "07/04", day: "Quarta", meta: "2h30" }, { date: "08/04", day: "Quinta", meta: "2h30" },
+          { date: "09/04", day: "Sexta", meta: "2h30" }, { date: "12/04", day: "Segunda", meta: "2h30" },
+          { date: "13/04", day: "Terça", meta: "2h" }, { date: "14/04", day: "Quarta", meta: "2h30" },
+          { date: "15/04", day: "Quinta", meta: "2h30" }, { date: "16/04", day: "Sexta", meta: "2h30" },
+          { date: "19/04", day: "Segunda", meta: "2h30" }, { date: "20/04", day: "Terça", meta: "2h" },
+          { date: "21/04", day: "Quarta", meta: "2h30" }, { date: "22/04", day: "Quinta", meta: "2h" },
+          { date: "23/04", day: "Sexta", meta: "2h" }, { date: "26/04", day: "Segunda", meta: "2h" },
+          { date: "27/04", day: "Terça", meta: "2h" }, { date: "28/04", day: "Quarta", meta: "2h" },
+          { date: "29/04", day: "Quinta", meta: "2h" }, { date: "30/04", day: "Sexta", meta: "2h" }
+        ]
+      },
+      {
+        id: "mai-2027", label: "Maio 2027", title: "MAIO 2027", target: "50h",
+        rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+        days: [
+          { date: "03/05", day: "Segunda", meta: "2h30" }, { date: "04/05", day: "Terça", meta: "2h" },
+          { date: "05/05", day: "Quarta", meta: "2h30" }, { date: "06/05", day: "Quinta", meta: "2h30" },
+          { date: "07/05", day: "Sexta", meta: "2h30" }, { date: "10/05", day: "Segunda", meta: "2h30" },
+          { date: "11/05", day: "Terça", meta: "2h" }, { date: "12/05", day: "Quarta", meta: "2h30" },
+          { date: "13/05", day: "Quinta", meta: "2h30" }, { date: "14/05", day: "Sexta", meta: "2h30" },
+          { date: "17/05", day: "Segunda", meta: "2h30" }, { date: "18/05", day: "Terça", meta: "2h" },
+          { date: "19/05", day: "Quarta", meta: "2h30" }, { date: "20/05", day: "Quinta", meta: "2h30" },
+          { date: "21/05", day: "Sexta", meta: "2h30" }, { date: "24/05", day: "Segunda", meta: "2h30" },
+          { date: "25/05", day: "Terça", meta: "2h" }, { date: "26/05", day: "Quarta", meta: "2h30" },
+          { date: "27/05", day: "Quinta", meta: "2h30" }, { date: "28/05", day: "Sexta", meta: "2h30" },
+          { date: "31/05", day: "Segunda", meta: "2h" }
+        ]
+      },
+      {
+        id: "jun-2027", label: "Junho 2027", title: "JUNHO 2027", target: "50h",
+        rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+        days: [
+          { date: "01/06", day: "Terça", meta: "2h" }, { date: "02/06", day: "Quarta", meta: "2h30" },
+          { date: "03/06", day: "Quinta", meta: "2h30" }, { date: "04/06", day: "Sexta", meta: "2h30" },
+          { date: "07/06", day: "Segunda", meta: "2h30" }, { date: "08/06", day: "Terça", meta: "2h" },
+          { date: "09/06", day: "Quarta", meta: "2h30" }, { date: "10/06", day: "Quinta", meta: "2h30" },
+          { date: "11/06", day: "Sexta", meta: "2h30" }, { date: "14/06", day: "Segunda", meta: "2h30" },
+          { date: "15/06", day: "Terça", meta: "2h" }, { date: "16/06", day: "Quarta", meta: "2h30" },
+          { date: "17/06", day: "Quinta", meta: "2h30" }, { date: "18/06", day: "Sexta", meta: "2h30" },
+          { date: "21/06", day: "Segunda", meta: "2h30" }, { date: "22/06", day: "Terça", meta: "2h" },
+          { date: "23/06", day: "Quarta", meta: "2h" }, { date: "24/06", day: "Quinta", meta: "2h" },
+          { date: "25/06", day: "Sexta", meta: "2h" }, { date: "28/06", day: "Segunda", meta: "2h" },
+          { date: "29/06", day: "Terça", meta: "2h" }, { date: "30/06", day: "Quarta", meta: "2h" }
+        ]
+      },
+      {
+        id: "jul-2027", label: "Julho 2027", title: "JULHO 2027", target: "50h",
+        rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+        days: [
+          { date: "01/07", day: "Quinta", meta: "2h30" }, { date: "02/07", day: "Sexta", meta: "2h30" },
+          { date: "05/07", day: "Segunda", meta: "2h30" }, { date: "06/07", day: "Terça", meta: "2h" },
+          { date: "07/07", day: "Quarta", meta: "2h30" }, { date: "08/07", day: "Quinta", meta: "2h30" },
+          { date: "09/07", day: "Sexta", meta: "2h30" }, { date: "12/07", day: "Segunda", meta: "2h30" },
+          { date: "13/07", day: "Terça", meta: "2h" }, { date: "14/07", day: "Quarta", meta: "2h30" },
+          { date: "15/07", day: "Quinta", meta: "2h30" }, { date: "16/07", day: "Sexta", meta: "2h30" },
+          { date: "19/07", day: "Segunda", meta: "2h30" }, { date: "20/07", day: "Terça", meta: "2h" },
+          { date: "21/07", day: "Quarta", meta: "2h30" }, { date: "22/07", day: "Quinta", meta: "2h" },
+          { date: "23/07", day: "Sexta", meta: "2h" }, { date: "26/07", day: "Segunda", meta: "2h" },
+          { date: "27/07", day: "Terça", meta: "2h" }, { date: "28/07", day: "Quarta", meta: "2h" },
+          { date: "29/07", day: "Quinta", meta: "2h" }, { date: "30/07", day: "Sexta", meta: "2h" }
+        ]
+      },
+      {
+        id: "ago-2027", label: "Agosto 2027", title: "AGOSTO 2027", target: "50h",
+        rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+        days: [
+          { date: "02/08", day: "Segunda", meta: "2h30" }, { date: "03/08", day: "Terça", meta: "2h" },
+          { date: "04/08", day: "Quarta", meta: "2h30" }, { date: "05/08", day: "Quinta", meta: "2h30" },
+          { date: "06/08", day: "Sexta", meta: "2h30" }, { date: "09/08", day: "Segunda", meta: "2h30" },
+          { date: "10/08", day: "Terça", meta: "2h" }, { date: "11/08", day: "Quarta", meta: "2h30" },
+          { date: "12/08", day: "Quinta", meta: "2h30" }, { date: "13/08", day: "Sexta", meta: "2h30" },
+          { date: "16/08", day: "Segunda", meta: "2h30" }, { date: "17/08", day: "Terça", meta: "2h" },
+          { date: "18/08", day: "Quarta", meta: "2h30" }, { date: "19/08", day: "Quinta", meta: "2h30" },
+          { date: "20/08", day: "Sexta", meta: "2h30" }, { date: "23/08", day: "Segunda", meta: "2h" },
+          { date: "24/08", day: "Terça", meta: "2h" }, { date: "25/08", day: "Quarta", meta: "2h" },
+          { date: "26/08", day: "Quinta", meta: "2h" }, { date: "27/08", day: "Sexta", meta: "2h" },
+          { date: "30/08", day: "Segunda", meta: "2h" }, { date: "31/08", day: "Terça", meta: "2h" }
+        ]
+      },
+      {
+        id: "set-2027", label: "Setembro 2027", title: "SETEMBRO 2027", target: "50h",
+        rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+        days: [
+          { date: "01/09", day: "Quarta", meta: "2h30" }, { date: "02/09", day: "Quinta", meta: "2h30" },
+          { date: "03/09", day: "Sexta", meta: "2h30" }, { date: "06/09", day: "Segunda", meta: "2h30" },
+          { date: "07/09", day: "Terça", meta: "2h" }, { date: "08/09", day: "Quarta", meta: "2h30" },
+          { date: "09/09", day: "Quinta", meta: "2h30" }, { date: "10/09", day: "Sexta", meta: "2h30" },
+          { date: "13/09", day: "Segunda", meta: "2h30" }, { date: "14/09", day: "Terça", meta: "2h" },
+          { date: "15/09", day: "Quarta", meta: "2h30" }, { date: "16/09", day: "Quinta", meta: "2h30" },
+          { date: "17/09", day: "Sexta", meta: "2h30" }, { date: "20/09", day: "Segunda", meta: "2h30" },
+          { date: "21/09", day: "Terça", meta: "2h" }, { date: "22/09", day: "Quarta", meta: "2h" },
+          { date: "23/09", day: "Quinta", meta: "2h" }, { date: "24/09", day: "Sexta", meta: "2h" },
+          { date: "27/09", day: "Segunda", meta: "2h" }, { date: "28/09", day: "Terça", meta: "2h" },
+          { date: "29/09", day: "Quarta", meta: "2h" }, { date: "30/09", day: "Quinta", meta: "2h" }
+        ]
+      },
+      {
+        id: "out-2027", label: "Outubro 2027", title: "OUTUBRO 2027", target: "50h",
+        rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+        days: [
+          { date: "01/10", day: "Sexta", meta: "2h30" }, { date: "04/10", day: "Segunda", meta: "2h30" },
+          { date: "05/10", day: "Terça", meta: "2h" }, { date: "06/10", day: "Quarta", meta: "2h30" },
+          { date: "07/10", day: "Quinta", meta: "2h30" }, { date: "08/10", day: "Sexta", meta: "2h30" },
+          { date: "11/10", day: "Segunda", meta: "2h30" }, { date: "12/10", day: "Terça", meta: "2h" },
+          { date: "13/10", day: "Quarta", meta: "2h30" }, { date: "14/10", day: "Quinta", meta: "2h30" },
+          { date: "15/10", day: "Sexta", meta: "2h30" }, { date: "18/10", day: "Segunda", meta: "2h30" },
+          { date: "19/10", day: "Terça", meta: "2h" }, { date: "20/10", day: "Quarta", meta: "2h30" },
+          { date: "21/10", day: "Quinta", meta: "2h30" }, { date: "22/10", day: "Sexta", meta: "2h30" },
+          { date: "25/10", day: "Segunda", meta: "2h30" }, { date: "26/10", day: "Terça", meta: "2h" },
+          { date: "27/10", day: "Quarta", meta: "2h30" }, { date: "28/10", day: "Quinta", meta: "2h30" },
+          { date: "29/10", day: "Sexta", meta: "2h" }
+        ]
+      },
+      {
+        id: "nov-2027", label: "Novembro 2027", title: "NOVEMBRO 2027", target: "50h",
+        rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+        days: [
+          { date: "01/11", day: "Segunda", meta: "2h30" }, { date: "02/11", day: "Terça", meta: "2h" },
+          { date: "03/11", day: "Quarta", meta: "2h30" }, { date: "04/11", day: "Quinta", meta: "2h30" },
+          { date: "05/11", day: "Sexta", meta: "2h30" }, { date: "08/11", day: "Segunda", meta: "2h30" },
+          { date: "09/11", day: "Terça", meta: "2h" }, { date: "10/11", day: "Quarta", meta: "2h30" },
+          { date: "11/11", day: "Quinta", meta: "2h30" }, { date: "12/11", day: "Sexta", meta: "2h30" },
+          { date: "15/11", day: "Segunda", meta: "2h30" }, { date: "16/11", day: "Terça", meta: "2h" },
+          { date: "17/11", day: "Quarta", meta: "2h30" }, { date: "18/11", day: "Quinta", meta: "2h30" },
+          { date: "19/11", day: "Sexta", meta: "2h30" }, { date: "22/11", day: "Segunda", meta: "2h" },
+          { date: "23/11", day: "Terça", meta: "2h" }, { date: "24/11", day: "Quarta", meta: "2h" },
+          { date: "25/11", day: "Quinta", meta: "2h" }, { date: "26/11", day: "Sexta", meta: "2h" },
+          { date: "29/11", day: "Segunda", meta: "2h" }, { date: "30/11", day: "Terça", meta: "2h" }
+        ]
+      },
+      {
+        id: "dez-2027", label: "Dezembro 2027", title: "DEZEMBRO 2027", target: "50h",
+        rule: "Regra usada: terça-feira = 2h após o jovem aprendiz; outros dias úteis = 2h/2h30.",
+        days: [
+          { date: "01/12", day: "Quarta", meta: "2h30" }, { date: "02/12", day: "Quinta", meta: "2h30" },
+          { date: "03/12", day: "Sexta", meta: "2h30" }, { date: "06/12", day: "Segunda", meta: "2h30" },
+          { date: "07/12", day: "Terça", meta: "2h" }, { date: "08/12", day: "Quarta", meta: "2h30" },
+          { date: "09/12", day: "Quinta", meta: "2h30" }, { date: "10/12", day: "Sexta", meta: "2h30" },
+          { date: "13/12", day: "Segunda", meta: "2h30" }, { date: "14/12", day: "Terça", meta: "2h" },
+          { date: "15/12", day: "Quarta", meta: "2h" }, { date: "16/12", day: "Quinta", meta: "2h" },
+          { date: "17/12", day: "Sexta", meta: "2h" }, { date: "20/12", day: "Segunda", meta: "2h" },
+          { date: "21/12", day: "Terça", meta: "2h" }, { date: "22/12", day: "Quarta", meta: "2h" },
+          { date: "23/12", day: "Quinta", meta: "2h" }, { date: "24/12", day: "Sexta", meta: "2h" },
+          { date: "27/12", day: "Segunda", meta: "2h" }, { date: "28/12", day: "Terça", meta: "2h" },
+          { date: "29/12", day: "Quarta", meta: "2h" }, { date: "30/12", day: "Quinta", meta: "2h" },
+          { date: "31/12", day: "Sexta", meta: "2h" }
+        ]
+      }
+    ];
+
+    const photoStore = {};
+
+    function parseHours(str) {
+      if(!str) return 0;
+      let h = 0, m = 0;
+      if (str.includes('h')) {
+        const parts = str.split('h');
+        h = parseInt(parts[0]) || 0;
+        if (parts[1]) m = parseInt(parts[1]) || 0;
+      }
+      return h + (m / 60);
+    }
+
+    // Busca o Texto Diário via Proxy AllOrigins (Compatível com GitHub Pages)
+    async function fetchDailyText() {
+      const quoteTitle = document.getElementById('quoteTitle');
+      const quoteText = document.getElementById('dailyQuote');
+      const quoteComment = document.getElementById('dailyComment');
+      const toggleBtn = document.getElementById('toggleCommentBtn');
+
+      const hoje = new Date();
+      const ano = hoje.getFullYear();
+      const mes = hoje.getMonth() + 1;
+      const dia = hoje.getDate();
+
+      const targetUrl = `https://wol.jw.org/pt/wol/h/r5/lp-t/${ano}/${mes}/${dia}`;
+      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+
+      try {
+        const response = await fetch(proxyUrl);
+        const data = await response.json();
+
+        if (data.contents) {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(data.contents, 'text/html');
+
+          const textoEl = doc.querySelector('.themeScrp');
+          const comentarioEl = doc.querySelector('.sb');
+          const headerEl = doc.querySelector('.todayItems .singleGroup .header h2');
+
+          if (textoEl) {
+            if (headerEl) {
+              quoteTitle.textContent = `TEXTO DIÁRIO — ${headerEl.textContent.trim().toUpperCase()}`;
+            }
+            quoteText.innerHTML = textoEl.innerHTML;
+            
+            if (comentarioEl) {
+              quoteComment.innerHTML = comentarioEl.innerHTML;
+              toggleBtn.style.display = 'inline-block';
+            }
+          } else {
+            quoteText.textContent = "Não foi possível extrair o texto de hoje.";
+          }
+        }
+      } catch (err) {
+        quoteText.textContent = "Erro ao carregar o texto diário automático.";
+      }
+    }
+
+    function toggleComment() {
+      const comment = document.getElementById('dailyComment');
+      const btn = document.getElementById('toggleCommentBtn');
+      if (comment.style.display === 'block') {
+        comment.style.display = 'none';
+        btn.textContent = 'Ler Comentário';
+      } else {
+        comment.style.display = 'block';
+        btn.textContent = 'Ocultar Comentário';
+      }
+    }
+
+    function initApp() {
+      const monthsMenu = document.getElementById('monthsMenu');
+      const colorGrid = document.getElementById('colorGrid');
+      const monthsContainer = document.getElementById('monthsContainer');
+
+      // Configura botões de seleção de cores
+      colorThemes.forEach((theme, idx) => {
+        const dot = document.createElement('div');
+        dot.className = `color-dot ${idx === 0 ? 'selected' : ''}`;
+        dot.style.background = `linear-gradient(135deg, ${theme.navy} 50%, ${theme.bg} 50%)`;
+        dot.title = theme.name;
+        dot.onclick = () => setTheme(idx);
+        colorGrid.appendChild(dot);
+      });
+
+      // Carrega tema salvo
+      const savedTheme = localStorage.getItem('selectedTheme');
+      if (savedTheme !== null) {
+        setTheme(parseInt(savedTheme), false);
+      }
+
+      planData.forEach((month, index) => {
+        photoStore[month.id] = [];
+
+        const btn = document.createElement('button');
+        btn.className = `menu-btn ${index === 0 ? 'active' : ''}`;
+        btn.textContent = month.label;
+        btn.onclick = () => {
+          switchTab(month.id);
+          toggleMenu();
+        };
+        monthsMenu.appendChild(btn);
+
+        const monthDiv = document.createElement('div');
+        monthDiv.className = `month-content ${index === 0 ? 'active' : ''}`;
+        monthDiv.id = month.id;
+
+        let rowsHtml = '';
+        month.days.forEach((d, idx) => {
+          const storageKey = `${month.id}-${idx}`;
+          const isChecked = localStorage.getItem(storageKey) === 'true';
+
+          rowsHtml += `
+            <tr>
+              <td>${d.date}</td>
+              <td>${d.day}</td>
+              <td>${d.meta}</td>
+              <td style="text-align: center;">
+                <input type="checkbox" 
+                       class="checkbox-custom" 
+                       data-month="${month.id}"
+                       data-meta="${d.meta}"
+                       data-key="${storageKey}"
+                       ${isChecked ? 'checked' : ''} 
+                       onchange="updateProgress('${month.id}', '${month.title}')">
+              </td>
+            </tr>
+          `;
+        });
+
+        monthDiv.innerHTML = `
+          <div class="month-header">
+            <div class="month-title">
+              <h2>${month.title}</h2>
+            </div>
+          </div>
+
+          <div class="progress-box">
+            <div class="progress-info">
+              <span>Progresso da Meta (${month.target})</span>
+              <span id="prog-text-${month.id}">0h / ${month.target}</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" id="prog-bar-${month.id}"></div>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Dia</th>
+                  <th>Meta</th>
+                  <th style="text-align: center;">Feito ✓</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml}
+              </tbody>
+            </table>
+          </div>
+
+          <p class="rule-note">${month.rule}</p>
+          
+          <div class="report-box" id="report-box-${month.id}">
+            <div class="report-title">Relatório do Mês</div>
+            <div class="report-text" id="report-text-${month.id}"></div>
+            <button class="btn" id="copy-btn-${month.id}" onclick="copyReport('${month.id}')">
+              Copiar Mensagem
+            </button>
+          </div>
+
+          <div class="photo-section">
+            <div class="photo-title">
+              <span>Fotos do Mês</span>
+              <label class="photo-upload-btn">
+                + Adicionar Foto
+                <input type="file" accept="image/*" style="display:none;" onchange="uploadPhoto(event, '${month.id}')">
+              </label>
+            </div>
+            <div class="photo-grid" id="photo-grid-${month.id}"></div>
+          </div>
+        `;
+
+        monthsContainer.appendChild(monthDiv);
+      });
+
+      planData.forEach(m => {
+        updateProgress(m.id, m.title);
+        renderPhotos(m.id);
+      });
+
+      fetchDailyText();
+    }
+
+    function setTheme(index, save = true) {
+      const theme = colorThemes[index];
+      if (!theme) return;
+
+      document.documentElement.style.setProperty('--bg-cream', theme.bg);
+      document.documentElement.style.setProperty('--navy-base', theme.navy);
+      document.documentElement.style.setProperty('--navy-dark', theme.dark);
+      document.documentElement.style.setProperty('--navy-card', hexToRgba(theme.navy, 0.92));
+      document.documentElement.style.setProperty('--border-color', hexToRgba(theme.bg, 0.25));
+
+      document.querySelectorAll('.color-dot').forEach((dot, i) => {
+        dot.classList.toggle('selected', i === index);
+      });
+
+      if (save) {
+        localStorage.setItem('selectedTheme', index);
+      }
+    }
+
+    function hexToRgba(hex, alpha) {
+      hex = hex.replace('#', '');
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    const menuToggle = document.getElementById('menuToggle');
+    const menuOverlay = document.getElementById('menuOverlay');
+
+    function toggleMenu() {
+      document.getElementById('sidebarMenu').classList.toggle('active');
+      menuOverlay.classList.toggle('active');
+    }
+
+    menuToggle.onclick = toggleMenu;
+    menuOverlay.onclick = toggleMenu;
+
+    function switchTab(monthId) {
+      document.querySelectorAll('.menu-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', planData[idx].id === monthId);
+      });
+      document.querySelectorAll('.month-content').forEach(content => {
+        content.classList.toggle('active', content.id === monthId);
+      });
+    }
+
+    function updateProgress(monthId, monthTitle) {
+      const checkboxes = document.querySelectorAll(`input[data-month="${monthId}"]`);
+      let totalDone = 0;
+
+      checkboxes.forEach(cb => {
+        localStorage.setItem(cb.dataset.key, cb.checked);
+        if (cb.checked) {
+          totalDone += parseHours(cb.dataset.meta);
+        }
+      });
+
+      const hours = Math.floor(totalDone);
+      const minutes = Math.round((totalDone - hours) * 60);
+      const doneFormatted = minutes > 0 ? `${hours}h${minutes.toString().padStart(2, '0')}` : `${hours}h`;
+
+      const targetValue = 50;
+      const percentage = Math.min((totalDone / targetValue) * 100, 100);
+
+      document.getElementById(`prog-text-${monthId}`).textContent = `${doneFormatted} / 50h`;
+      document.getElementById(`prog-bar-${monthId}`).style.width = `${percentage}%`;
+
+      const reportBox = document.getElementById(`report-box-${monthId}`);
+      const reportText = document.getElementById(`report-text-${monthId}`);
+
+      if (totalDone > 0) {
+        reportBox.classList.add('active');
+        reportText.textContent = `Olá! Eu participei no campo no mês de ${monthTitle}, fiz ${doneFormatted} de horas de campo cumpridas.`;
+      } else {
+        reportBox.classList.remove('active');
+      }
+    }
+
+    // Copiar com suporte universal
+    function copyReport(monthId) {
+      const text = document.getElementById(`report-text-${monthId}`).textContent;
+      const btn = document.getElementById(`copy-btn-${monthId}`);
+
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => {
+          showCopyFeedback(btn);
+        }).catch(() => {
+          fallbackCopy(text, btn);
+        });
+      } else {
+        fallbackCopy(text, btn);
+      }
+    }
+
+    function fallbackCopy(text, btn) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+
+      try {
+        document.execCommand('copy');
+        showCopyFeedback(btn);
+      } catch (err) {
+        alert('Erro ao copiar a mensagem.');
+      }
+      document.body.removeChild(textarea);
+    }
+
+    function showCopyFeedback(btn) {
+      const originalText = btn.textContent;
+      btn.textContent = '✓ Copiado com sucesso!';
+      btn.style.fontWeight = 'bold';
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.fontWeight = 'normal';
+      }, 2000);
+    }
+
+    function uploadPhoto(event, monthId) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const url = URL.createObjectURL(file);
+      photoStore[monthId].push(url);
+      renderPhotos(monthId);
+    }
+
+    function renderPhotos(monthId) {
+      const grid = document.getElementById(`photo-grid-${monthId}`);
+      if (!grid) return;
+      const photos = photoStore[monthId] || [];
+
+      grid.innerHTML = photos.map((src, index) => `
+        <div class="photo-card">
+          <img src="${src}" onclick="openPhoto('${src}')" alt="Foto do Campo">
+          <button class="photo-delete" onclick="deletePhoto('${monthId}', ${index})">✕</button>
+        </div>
+      `).join('');
+    }
+
+    function deletePhoto(monthId, index) {
+      photoStore[monthId].splice(index, 1);
+      renderPhotos(monthId);
+    }
+
+    function openPhoto(src) {
+      const w = window.open("");
+      w.document.write(`<body style="margin:0; background:var(--navy-dark); display:flex; align-items:center; justify-content:center; min-height:100vh;"><img src="${src}" style="max-width:100%; max-height:100vh; object-fit:contain;"></body>`);
+    }
+
+    window.onload = initApp;
+  </script>
+</body>
+</html>
