@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Planejamento 50 Horas de Campo</title>
 
-  <!-- Favicon -->
+  <!-- Favicon em SVG -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23282B4A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='2' y='7' width='20' height='14' rx='2' ry='2'></rect><path d='M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16'></path></svg>">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -24,7 +24,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; color: var(--bg-cream); -webkit-tap-highlight-color: transparent; }
     body { background-color: var(--bg-cream); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 2rem 1rem; position: relative; overflow-x: hidden; transition: background-color 0.4s ease; }
 
-    /* Lâmpada de Lava */
+    /* Container Lâmpada de Lava */
     .lava-lamp { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; filter: url("#goo") blur(8px); opacity: 0.75; }
     .blob { position: absolute; border-radius: 50%; background: var(--navy-base); bottom: -350px; will-change: transform; transition: background 0.4s ease; }
     .blob-1 { width: 220px; height: 220px; left: 20%; animation: floatLava1 22s infinite ease-in-out; }
@@ -45,23 +45,33 @@
     }
 
     /* Modal / Tela de Autenticação */
-    .auth-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(18, 20, 38, 0.95); backdrop-filter: blur(10px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1rem; }
-    .auth-box { width: 100%; max-width: 400px; background: var(--navy-base); border: 1px solid var(--border-color); border-radius: 12px; padding: 2rem; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-    .auth-title { font-size: 1.3rem; font-weight: 600; margin-bottom: 1.5rem; text-transform: uppercase; }
-    .auth-input { width: 100%; padding: 0.8rem; margin-bottom: 1rem; border-radius: 6px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: #FFF; font-size: 0.9rem; }
-    .auth-btn { width: 100%; padding: 0.85rem; border-radius: 6px; border: 1px solid var(--bg-cream); background: transparent; color: var(--bg-cream); font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: 0.5rem; }
+    .auth-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(18, 20, 38, 0.95); backdrop-filter: blur(10px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto; }
+    .auth-box { width: 100%; max-width: 440px; background: var(--navy-base); border: 1px solid var(--border-color); border-radius: 16px; padding: 2rem; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin: auto; }
+    .welcome-msg { font-size: 0.95rem; font-weight: 500; opacity: 0.9; margin-bottom: 0.4rem; color: var(--bg-cream); }
+    .auth-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 1.25rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    .auth-input, .auth-select { width: 100%; padding: 0.8rem; margin-bottom: 0.85rem; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.25); color: #FFF; font-size: 0.9rem; }
+    .auth-select option { background: var(--navy-dark); color: #FFF; }
+    
+    .auth-label { text-align: left; font-size: 0.8rem; opacity: 0.8; margin-bottom: 0.3rem; display: block; }
+    
+    .auth-btn { width: 100%; padding: 0.85rem; border-radius: 8px; border: 1px solid var(--bg-cream); background: transparent; color: var(--bg-cream); font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 0.5rem; font-size: 0.95rem; }
     .auth-btn:hover { background: var(--bg-cream); color: var(--navy-dark); }
-    .auth-toggle-link { font-size: 0.8rem; margin-top: 1rem; display: block; text-decoration: underline; cursor: pointer; opacity: 0.8; }
-    .auth-hint { font-size: 0.75rem; text-align: left; margin-bottom: 1rem; opacity: 0.7; line-height: 1.3; color: #EEEBDA; }
+    .auth-toggle-link { font-size: 0.85rem; margin-top: 1.2rem; display: block; text-decoration: underline; cursor: pointer; opacity: 0.85; }
+    .auth-hint { font-size: 0.75rem; text-align: left; margin-bottom: 0.85rem; opacity: 0.75; line-height: 1.35; color: #EEEBDA; }
 
-    /* Estilos do App */
+    /* Estilos do App Principal */
     .app-container { width: 100%; max-width: 800px; display: none; }
     .app-container.active { display: block; }
     
     .menu-toggle { position: fixed; top: 1.25rem; right: 1.25rem; z-index: 100; background: var(--navy-base); border: 1px solid var(--border-color); width: 44px; height: 44px; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
     .menu-toggle span { width: 18px; height: 2px; background-color: var(--bg-cream); border-radius: 2px; }
+    
     .sidebar-menu { position: fixed; top: 0; right: -100%; width: 320px; max-width: 85vw; height: 100vh; background: var(--navy-card); backdrop-filter: blur(20px); z-index: 90; padding: 5rem 1.25rem 2rem 1.25rem; display: flex; flex-direction: column; overflow-y: auto; transition: right 0.3s ease; border-left: 1px solid var(--border-color); }
     .sidebar-menu.active { right: 0; }
+    
+    .user-greeting-badge { background: rgba(255,255,255,0.1); border: 1px solid var(--border-color); padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.9rem; font-weight: 600; text-align: center; }
+
     #monthsMenu { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; }
     .menu-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.4); z-index: 80; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
     .menu-overlay.active { opacity: 1; pointer-events: auto; }
@@ -69,10 +79,14 @@
     .menu-btn.active { background: var(--bg-cream); color: var(--navy-dark); font-weight: 600; }
     
     .color-section-title { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; margin: 1.5rem 0 0.75rem 0; opacity: 0.8; border-top: 1px dashed var(--border-color); padding-top: 1.25rem; }
-    .color-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 1rem; width: 100%; }
-    .color-dot { width: 100%; aspect-ratio: 1; border-radius: 8px; border: 2px solid transparent; cursor: pointer; transition: transform 0.2s ease; box-shadow: 0 2px 6px rgba(0,0,0,0.25); }
-    .color-dot:hover { transform: scale(1.1); }
-    .color-dot.selected { border-color: #FFF; transform: scale(1.08); box-shadow: 0 0 10px rgba(255,255,255,0.7); }
+    
+    /* Lista de Cores Estilo Cartão com Emoji e Descrição */
+    .color-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1rem; width: 100%; }
+    .color-card-item { display: flex; align-items: center; gap: 10px; padding: 0.65rem 0.85rem; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s; font-size: 0.85rem; text-align: left; }
+    .color-card-item:hover { background: rgba(255,255,255,0.1); }
+    .color-card-item.selected { border-color: #FFF; background: var(--bg-cream); color: var(--navy-dark); font-weight: 600; }
+    .color-card-item.selected span { color: var(--navy-dark); }
+    .color-swatch-circle { width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.4); flex-shrink: 0; }
 
     header, .quote-box, main { position: relative; z-index: 1; }
     header { text-align: center; margin-bottom: 1.5rem; width: 100%; }
@@ -139,14 +153,34 @@
   <!-- Modal de Login / Cadastro -->
   <div class="auth-overlay" id="authOverlay">
     <div class="auth-box">
+      <div class="welcome-msg">Bem-vindo(a) ao site de planejamento de 50 horas! 👋</div>
       <div class="auth-title" id="authTitle">Entrar no Sistema</div>
       
-      <input type="email" id="authEmail" class="auth-input" placeholder="Seu e-mail">
-      <input type="password" id="authPassword" class="auth-input" placeholder="Sua senha">
+      <!-- Campos Adicionais para Cadastro -->
+      <div id="signUpFields" style="display: none;">
+        <label class="auth-label">Como deseja ser chamado(a)?</label>
+        <select id="authGender" class="auth-select">
+          <option value="Irmão">Irmão</option>
+          <option value="Irmã">Irmã</option>
+        </select>
+
+        <label class="auth-label">Seu Nome de Usuário</label>
+        <input type="text" id="authUsername" class="auth-input" placeholder="Ex: Lucas Silva">
+      </div>
+
+      <label class="auth-label">E-mail</label>
+      <input type="email" id="authEmail" class="auth-input" placeholder="seu@email.com">
+      
+      <label class="auth-label">Senha</label>
+      <input type="password" id="authPassword" class="auth-input" placeholder="Mínimo 8 dígitos, 1 maiúscula e 1 caractere especial">
       
       <div class="auth-hint" id="passwordHint" style="display:none;">
         * A senha deve conter no mínimo 8 caracteres, 1 letra maiúscula e 1 caractere especial (!@#$%...).
       </div>
+
+      <!-- Seletor de Tema na Inicialização -->
+      <label class="auth-label">Escolha o Tema de Cores Inicial</label>
+      <select id="authThemeSelect" class="auth-select"></select>
 
       <button class="auth-btn" id="authSubmitBtn">Entrar</button>
       
@@ -165,6 +199,7 @@
     <div class="menu-overlay" id="menuOverlay"></div>
     
     <nav class="sidebar-menu" id="sidebarMenu">
+      <div class="user-greeting-badge" id="userGreetingBadge">Bem-vindo(a)!</div>
       <button class="btn" id="logoutBtn" style="margin-bottom: 1rem; border-color: #ff6b6b; color: #ff6b6b;">Sair da Conta</button>
       <div id="monthsMenu"></div>
       <div class="color-section-title">Temas de Cores (20)</div>
@@ -173,7 +208,7 @@
 
     <header>
       <h1>50 Horas de Campo</h1>
-      <p class="subtitle">Acompanhamento e Relatório Mensal</p>
+      <p class="subtitle" id="headerSubtitle">Acompanhamento e Relatório Mensal</p>
     </header>
 
     <div class="quote-box">
@@ -188,7 +223,6 @@
     </main>
   </div>
 
-  <!-- Carrega a lógica da aplicação em JS -->
   <script type="module" src="app.js"></script>
 </body>
 </html>
